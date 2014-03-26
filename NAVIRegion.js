@@ -10,12 +10,12 @@
  * Leaflet.NavRegion assumes that you have already included the Leaflet library, custom User and custom JSHashTable scripts.
  */
 
-L.NAVIRegion = L.polygon.extend({
+L.NAVIRegion = L.Polygon.extend({
 	visible: false,
-	slots:new Hashtable(),//12 slots, each slot contains a productname & shipname in {product:xxx,ship:xxx}
+	timeslots:new Hashtable(),//12 slots, each slot contains a berth record
 	berthID:undefined,
 	$container: undefined,
-	currentSlot: 1,
+	currentSlot: 0,
 	
 	options: {
 	
@@ -47,10 +47,10 @@ L.NAVIRegion = L.polygon.extend({
 		return latlngs;
 	},
 	
-	//Users can come in Hashtable or Array of user objects
 	initialize: function (berthID,slotsHashtable, boundaryString,options) {
+		L.setOptions(this, options);
 		this.berthID = berthID;
-		var latlngs = parseBoundaryString(boundaryString);
+		var latlngs = this.parseBoundaryString(boundaryString);
 		
 		var i, len, hole;
 
@@ -77,24 +77,6 @@ L.NAVIRegion = L.polygon.extend({
 		
 		this.bindPopup({showOnMouseClick:true});
 	},
-	
-	updateDBAddUser: function(user,message){
-		this.users.put(user.username,user);
-		mapManager.visibleRegions.removeLayer(this);
-		
-		dao.assignCensusTaker(this.assignmentID, currentUser, user.getUsername(), message, new Date().getTime(), function(){
-			//css for successful updating of addition of user to db
-			console.log('user successfully assigned');
-			//reload container upon successful assignment
-			vManager.loading();
-			censusManager.reboot();
-			vManager.removeOverlay();
-			
-			vManager.populateCensusContainer();
-		});
-		
-		
-	},
 
 	getJQueryContainer: function(){
 		return this.$container;
@@ -104,16 +86,14 @@ L.NAVIRegion = L.polygon.extend({
 		var self = this;
 		var htmlData = '<p>';
 		var containerElement = '';
-		htmlData += '<b>' + this.berthID + '</b></br>';
+		var date = new Date();
+		htmlData += '<span class=\'berthtime\'><b>' + date + '</b></span></br>';
 		
-		if (!isAndroid){
-			containerElement = '<div id=\'droppableContainer\' />';
-			// Delegate all event handling for the container itself and its contents to the container
-			containerElement += '<div id=\'assigned\' class=\'' + this.options.title + '\' style=\'width=400px;height=200px\'>';
-			containerElement += '<label class=\'title_font-20 ui-widget-header\'> Assigned</label></div>';
-			//Insert whatever you want into the container, using whichever approach you prefer
-		}
+		containerElement = '<div id=\'droppableContainer\' >';
+		containerElement += '<div id=\'assigned\' class=\'' + Math.round(this.options.title) + '\'>';
+		containerElement += '<label class=\'content_font-16 ui-widget-header\'> Berth ' + Math.round(this.berthID) + '</label><div id=\'berth'+Math.round(this.berthID)+'\' style=\'width:300px;height:180px;\'  ></div></div>';
 
+		
 		containerElement += htmlData + '</p>';
 		return containerElement;
 	},
@@ -149,79 +129,72 @@ L.NAVIRegion = L.polygon.extend({
 	bindPopup: function(options) {
 		if (options && options.showOnMouseClick) {
 			// call the super method
-			L.GeoJSON.prototype.bindPopup.apply(this, [this.renderPopupData(), options]);
-
+			L.Polygon.prototype.bindPopup.apply(this, [this.renderPopupData(), options]);
 				var self = this;
 
-//				bind to mouse over
 				self.on("click", function(e) {	
+					var date = new Date();
+					date.setHours(this.currentSlot);
+					date.setMinutes(0);
+					date.setSeconds(0);
+					$('.berthtime').html(date);
 					var target = e.toElement || e.relatedTarget;
-					self.$container = $(document.getElementsByClassName(self.options.title)[0]);
+					self.$container = $('#berth' + (Math.round(self.options.title)));
 					var $container = self.$container;
 					if (target){//check if there's a parent. parent represents that there is already a popup
 						self.closePopup();
 					}else{				
-						if ($container.length > 0){
 
 							var droppableOptions = {
-									accept: "#censusTakers > li",
+									accept: "#incomingShips > li",
 									activeClass: "ui-state-highlight",
 									drop: function( event, ui ) {
 										var liAttributes = ui.draggable.context.attributes;
 										
-										var username = liAttributes.getNamedItem("username").value;
-										var user = censusManager.users.get(vManager.trim(username));
+										var shipName = liAttributes.getNamedItem("name").value;
+										var shipID = liAttributes.getNamedItem("id").value;
+										var ship = shipManager.allShips.get(shipName);
 										
-										user.assignments.push(self.assignmentID);
-										
-										if (self.users.containsKey(user.getUsername())){
+										var message = 'Hi, do you wish to assign ' + shipName + ' to Berth ' + Math.round(self.berthID);
 											
-										}else{
-											var message = 'Hi ' + user.getUsername() + ' here is your next assignment at ' + self.options.title;
+										var $notificationOverlay = self.generateNotificationOverlay();
+										var $notification = self.generateNotificationModal(message, function(){
+											//on successful assignment
+												
+											var messageToSend = $('#notification-box textarea').val();
+											//messageToSend = self.encodeEscapeURI(messageToSend);
+											console.log(self.berthID + '.' + self.currentSlot);
+											self.timeslots.put(self.berthID+'.'+self.currentSlot,new BerthRecord(shipID,shipName,Math.round(self.berthID),self.currentSlot));
+			
+											//self.updateDBAddUser(user,messageToSend);
+												
+											self.removeNotificationUI();
+												
+											//self.addUser(user);
+												
+											self.deleteImage( ui.draggable );
+										},function(){
+											self.removeNotificationUI();
+										});
 											
-											var $notificationOverlay = self.generateNotificationOverlay();
-											var $notification = self.generateNotificationModal(message, function(){
-												//on successful assignment
-												
-												var messageToSend = $('#notification-box textarea').val();
-												//messageToSend = self.encodeEscapeURI(messageToSend);
-												
-												self.updateDBAddUser(user,messageToSend);
-												
-												self.removeNotificationUI();
-												
-												self.addUser(user);
-												
-												//self.deleteImage( ui.draggable );
-											},function(){
-												self.removeNotificationUI();
-											});
-											
-											$(document.body).append($notification);
-											$(document.body).append($notificationOverlay);
-										}
+										$notificationOverlay.css('display','block');
+										$notificationOverlay.append($notification);
 									}
 							};
 							
-							if (vManager.futureAssignmentsOn){
-								$container.droppable(droppableOptions);
-							}
-
 							var $ul=$(document.createElement('ul'));
-							$ul.attr('id', 'censusTakers');
-							$ul.addClass('censusTakers ui-helper-reset');				
+							$ul.attr('id', 'incomingShips');
+							$ul.addClass('incomingShips ui-helper-reset');				
 							
 							$container.append($ul);
-
-							var users = self.users.values();
-
-							for (var i = 0; i<users.length; i++){
-								var user = users[i];
-								self.addUserDOM($ul, user);
+							var berthRecord = self.timeslots.get(self.berthID+'.'+self.currentSlot);
+							if (berthRecord == null || berthRecord == undefined){
+								$container.droppable(droppableOptions);
+							}else{
+								self.addShipDOM($ul,berthRecord);
 							}
-						}else{
-							console.log('not ready');
-						}
+							//console.log('not ready');
+						
 					}		
 					return true;
 				}, self);
@@ -266,105 +239,23 @@ L.NAVIRegion = L.polygon.extend({
 
 	},
 
-	deleteImage: function( $item ) {
-		var self = this;
-		var assignedContainer = $( "#assigned" );
-		
-		var trashIcon = "<a title='Remove Census Taker' class='trash_Position ui-icon ui-icon-trash'>Remove Census Taker</a>";
-
-		$item.fadeOut(function() {
-			//Remove user from censusManager at OO level
-			censusManager.removeUser($item.attr('username'));
-
-			var $list = $( "ul", assignedContainer ).length ?
-					$( "ul", assignedContainer ) :
-						$( "<ul class='censusTakers ui-helper-reset'/>" ).appendTo( assignedContainer );
-					console.log($item.parent().attr('id'));
-					/*if(!$item.has('a')){
-						console.log($item.has('a'));
-						$item.append( trashIcon );
-					}else*/ 
-
-					if ($item.parent().parent().attr('class').split(" ")[0] == 'contentarea'){
-						$item.append( trashIcon );
-					};
-					$item.appendTo( $list ).fadeIn(function() {
-						$item
-						.animate({ width: "100%" })
-						.find( "img" )
-						.animate({ height: "36px" });
-					});
-
-					self.applyTrashClickDelete($item);
-		});
-	},
-
-	addUserDOM: function($ul,user){
+	addShipDOM: function($ul,berthRecord){
 		var $li = $(document.createElement('li'));
 
 		$li.addClass('ui-widget-content ui-corner-tr ui-draggable');
-
+		var shipName = berthRecord.shipName;
 		var $label = $(document.createElement('span'));
 		$label.addClass('content_font-18');
-		$label.html(user.getName());
+		$label.html(shipName);
 		
-		var username = user.getUsername();
-		$li.attr('name',user.getName());
-		$li.attr('username',username);
-		$li.attr('currentAssignment',user.getCurrentAssignment());
-		$li.attr('assignments', user.getAssignmentsHTMLString());
-		$li.attr('position',user.getPostion());
-		$li.attr('picture', user.getPictureBase64());
+		
+		$li.attr('shipName',shipName);
+		$li.attr('shipID',berthRecord.shipID);
 		$li.append($label);
 		
-		var $picture = $(document.createElement('img'));
-		var src = 'data:image/png;base64,';
-		$picture.addClass('censusPicture');
-		src += user.getPictureBase64();
-		$picture.attr('src',src);
-		$li.append($picture);
-		
-		var $currentNotifications = $(document.createElement('div'));
-		$currentNotifications.addClass('notification-icon');
-		$currentNotifications.on('click',function(){
-			//console.log(mapManager.getNotifications(self.assignmentID));
-			//console.log(mapManager.getNotifications(self.assignmentID).length);
-			vManager.loadNotificationView(user);
-		});
-		
-		$li.append($currentNotifications);
-		
-		if(!vManager.futureAssignmentsOn){
-	    	$li.off();
-			$li.on('click',function(){
-				vManager.currentUsername = username;
-		    	vManager.toggleTeamViewUI(undefined,true);
-		    });
-	    }
-		
-		//this.appendTrashIcon($li);
 		this.applyFade($li);
 		
-		//only future assignments view can you assign census takers
-		if (vManager.futureAssignmentsOn){
-			this.appendDraggable($li);
-		}
-		//this.applyTrashClickDelete($li);
-
 		$ul.append($li);
-	},
-
-	applyTrashClickDelete: function ( $item ){
-		var self = this;
-		$item.click(function( event ) {
-			var $target = $( event.target );
-
-			if ( $target.is( "a.ui-icon-trash" ) ) {
-				self.recycleImage( $item );
-			}
-
-			return false;
-		});
 	},
 
 	applyFade: function ( $item ){
@@ -376,21 +267,6 @@ L.NAVIRegion = L.polygon.extend({
 		});
 	},
 
-	appendTrashIcon: function ( $item ){
-		var trashIcon = "<a title='Remove Census Taker' class='trash_Position ui-icon ui-icon-trash'>Remove Census Taker</a>";
-		$item.append( trashIcon );
-	},
-
-	appendDraggable: function( $item ){
-		$item.draggable({
-			cancel: "a.ui-icon", // clicking an icon won't initiate dragging
-			revert: "invalid", // when not dropped, the item will revert back to its initial position
-			containment: "document",
-			helper: "clone",
-			cursor: "move"
-		});
-	},
-
 	recycleImage: function ($item) {
 		this.removeUser($item.attr('username'));
 		//alert($item.attr('username') + ' ' + this.users.size());
@@ -399,9 +275,7 @@ L.NAVIRegion = L.polygon.extend({
 	},
 	
 	generateNotificationOverlay: function(){
-		var $notificationOverlay = $(document.createElement('div'));
-		$notificationOverlay.attr('id','notification-overlay');
-		return $notificationOverlay;
+		return $('#overlay');
 	},
 	
 	generateNotificationModal: function(defaultMsg,assignmentHandler,cancelHandler){
@@ -413,14 +287,14 @@ L.NAVIRegion = L.polygon.extend({
 		$label.css('position','absolute');
 		$label.css('top','10%');
 		$label.css('left','10%');
-		$label.html('Notification Message');
+		$label.html('Ship Berth Assignment');
 		$label.appendTo($notification);
 				
 		var $textarea = $(document.createElement('textarea'));
 		$textarea.addClass('logininput content_font-18');
 		$textarea.attr('name','notification-comments');
 		$textarea.attr('cols','70');
-		$textarea.attr('rows','10');
+		$textarea.attr('rows','5');
 		$textarea.attr('margin','0 auto 0 auto');
 		$textarea.css('top','25%');
 		$textarea.html(defaultMsg);
@@ -458,9 +332,40 @@ L.NAVIRegion = L.polygon.extend({
 	},
 	
 	removeNotificationUI: function(){
-		$('#notification-overlay').remove();
+		$('#overlay').css('display','none');
 		$('#notification-box').remove();
 	},
+	
+	deleteImage: function( $item ) {
+		var self = this;
+		var assignedContainer = $( "#berth" + Math.round(this.berthID));
+		
+		var trashIcon = "<a title='Remove Census Taker' class='trash_Position ui-icon ui-icon-trash'>Remove Census Taker</a>";
+
+		$item.fadeOut(function() {
+			//Remove user from censusManager at OO level
+			shipManager.allShips.remove($item.attr('name'));
+
+			var $list = $( "ul", assignedContainer ).length ?
+					$( "ul", assignedContainer ) :
+						$( "<ul class='incomingShips ui-helper-reset'/>" ).appendTo( assignedContainer );
+					/*if(!$item.has('a')){
+						console.log($item.has('a'));
+						$item.append( trashIcon );
+					}else*/ 
+
+					/*if ($item.parent().parent().attr('class').split(" ")[0] == 'contentarea'){
+						$item.append( trashIcon );
+					};*/
+					$item.appendTo( $list ).fadeIn(function() {
+						$item
+						.animate({ width: "100%" })
+						.find( "img" )
+						.animate({ height: "36px" });
+					});
+
+		});
+	}
 });
 
 L.naviregion = function (berthID,slotsHashtable,boundaryString,options) {

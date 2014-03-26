@@ -15,7 +15,7 @@ function SPServices(){
 		$().SPServices({
                 operation: "GetListItems",
                 async: false,
-                listName: "Configuration",
+                listName: listName,
                 CAMLViewFields: CAMLViewFieldsCall,
                 completefunc: successCallback
 				
