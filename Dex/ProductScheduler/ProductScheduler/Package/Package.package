@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package dslVersion="1.0.0.0" Id="1075e403-d24c-4b9e-9d66-06a718687612" solutionId="1075e403-d24c-4b9e-9d66-06a718687612" xmlns="http://schemas.microsoft.com/VisualStudio/2008/SharePointTools/PackageModel" name="ProductScheduler">
+    <features>
+        <featureReference itemId="2aea0fdc-3ee6-4c7b-833f-f720e63a94ea" />
+    </features>
+</package>
