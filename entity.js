@@ -1,3 +1,5 @@
+var berthRecords;
+
 function Shipment(productName,destination,tonnage,price,client){
 	this.productName = productName,
 	this.destination = destination,
@@ -270,6 +272,11 @@ function BerthManager(){
 		for (var i in layers){
 			var layer = layers[i];
 			layer.currentSlot = time;
+			if (layer.timeslots.get(layer.berthID+'.'+layer.currentSlot)){
+				layer._setOccupiedStyle();
+			}else{
+				layer._setOriginalStyle();
+			}
 		}
 	},
 	
@@ -284,8 +291,7 @@ function BerthManager(){
 	},
 	
 	this.populateBerths = function(){
-		var berthRecords = this.getTodaysBerthingRecords();
-
+		berthRecords = this.getTodaysBerthingRecords();
 		var viewValues = ["Berth","BoundaryLatLng","Point"];
 		var self = this;
 		SPWS.getList("Berths",viewValues,function(xData, Status){
@@ -295,21 +301,26 @@ function BerthManager(){
 				var berthLatLng = xitem.attr('ows_BoundaryLatLng');
 				var berthPoint = xitem.attr('ows_Point');
 				var localRecords = self.getBerthIDedRecords(Math.round(berthID),berthRecords);
-				console.log(localRecords);
 				var newLayer = new L.NAVIRegion(Math.round(berthID),localRecords,berthLatLng,{
 					title:berthID,
 					berthPoint:berthPoint
 				});
 				self.berths.put(Math.round(berthID),newLayer);
+				
+				if (newLayer.timeslots.get(newLayer.berthID+'.'+newLayer.currentSlot)){
+					newLayer._setOccupiedStyle();
+				}
+				
 				self.layer.addLayer(newLayer);
             });
+
 		});
 	},
 	
 	this.getTodaysBerthingRecords = function(){
 		var viewValues = ["Ship ID","Ship Name","Berth","Time"];
 		var self = this;
-		var berthingRecords = [];
+		berthingRecords = [];
 		SPWS.getList("Ship Berth Records",viewValues,function(xData, Status){
 			$(xData.responseXML).SPFilterNode("z:row").each(function () {
 				var xitem = $(this);
@@ -323,11 +334,11 @@ function BerthManager(){
 				
 				var today = new Date();
 				if (today.getDate() == time.getDate() && today.getMonth() == time.getMonth()){
-					berthingRecords.push(new BerthRecord(shipID,shipName,berthID,time));
+					berthingRecords.push(new BerthRecord(shipID,shipName,Math.round(berthID),time));
 				}
             });
-			return berthingRecords;
 		});
+		return berthingRecords;
 	},
 	
 	this.getBerthIDedRecords = function(berthID,berthRecords){
@@ -336,6 +347,7 @@ function BerthManager(){
 			var br = berthRecords[i];
 			if (br.berthID == berthID){
 				var time = br.time;
+				console.log(berthID+'.'+time.getHours());
 				timeHash.put(berthID+'.'+time.getHours(),br);
 			}
 		}

@@ -50,6 +50,7 @@ L.NAVIRegion = L.Polygon.extend({
 	initialize: function (berthID,slotsHashtable, boundaryString,options) {
 		L.setOptions(this, options);
 		this.berthID = berthID;
+		this.timeslots = slotsHashtable;
 		var latlngs = this.parseBoundaryString(boundaryString);
 		
 		var i, len, hole;
@@ -131,7 +132,11 @@ L.NAVIRegion = L.Polygon.extend({
 			// call the super method
 			L.Polygon.prototype.bindPopup.apply(this, [this.renderPopupData(), options]);
 				var self = this;
-
+				
+				if (this.timeslots.get(this.berthID+'.'+this.currentSlot)){
+					this._setOccupiedStyle();
+				}
+				
 				self.on("click", function(e) {	
 					var date = new Date();
 					date.setHours(this.currentSlot);
@@ -192,6 +197,9 @@ L.NAVIRegion = L.Polygon.extend({
 								$container.droppable(droppableOptions);
 							}else{
 								self.addShipDOM($ul,berthRecord);
+								self._setOccupiedStyle();
+								//self.color('#b23d35');
+								//self.fillColor('#fb9e25');
 							}
 							//console.log('not ready');
 						
@@ -201,7 +209,21 @@ L.NAVIRegion = L.Polygon.extend({
 		}
 
 	},
+	
+	_setOriginalStyle: function(){
+		this.setStyle({
+			color:'#03F',
+			fillColor:'#03F'
+		});
+	},
 
+	_setOccupiedStyle: function(){
+		this.setStyle({
+			color:'#b23d35',
+			fillColor:'#fb9e25'
+		});
+	},
+	
 	_getParent: function(element, className) {
 		var parent = element.parentNode;
 
@@ -341,7 +363,7 @@ L.NAVIRegion = L.Polygon.extend({
 		var assignedContainer = $( "#berth" + Math.round(this.berthID));
 		
 		var trashIcon = "<a title='Remove Census Taker' class='trash_Position ui-icon ui-icon-trash'>Remove Census Taker</a>";
-
+		this._setOccupiedStyle();
 		$item.fadeOut(function() {
 			//Remove user from censusManager at OO level
 			shipManager.allShips.remove($item.attr('name'));
