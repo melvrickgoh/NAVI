@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" dslVersion="1.0.0.0" Id="ad7de6c4-f90b-4344-8a14-c6492ee4c3d9" solutionId="ad7de6c4-f90b-4344-8a14-c6492ee4c3d9" resetWebServer="false" name="TeamAllocation" xmlns="http://schemas.microsoft.com/VisualStudio/2008/SharePointTools/PackageModel">
+  <features>
+    <featureReference itemId="2588f82e-8669-40b0-a106-8ed4247030ee" />
+  </features>
+</package>
