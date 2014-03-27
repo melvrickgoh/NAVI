@@ -11,7 +11,6 @@ namespace ProductScheduler.ProductScheduler
     public partial class ProductSchedulerUserControl : UserControl
     {
         SPWeb objweb = null;
-        SPWeb warehouseweb = null;
 
         SPWeb GetSubSiteURL(string subsiteTitle)
         {
@@ -142,7 +141,10 @@ namespace ProductScheduler.ProductScheduler
             //Retrieve incoming ship list that contains destinations
             SPList spShipLists = SPContext.Current.Web.Lists["Incoming Ships"];
             SPList spSelectedShipLists = SPContext.Current.Web.Lists["Shipment Schedule"];
-            warehouseweb = GetSubSiteURL("Warehouse");
+
+            //For updating/adding new shipment
+            SPWeb warehouseweb = GetSubSiteURL("Warehouse");
+            SPListItemCollection listItems = warehouseweb.Lists["Shipment Details"].Items;
             SPList spShipmentList = warehouseweb.Lists["Shipment Details"];
 
             Boolean anySelected = false;
@@ -229,7 +231,7 @@ namespace ProductScheduler.ProductScheduler
                             {
                                 if (selectedShipList[i].ShipName.Equals(chosenShip.ShipName))
                                 {
-                                    lblMessage.Text += " " + selectedShipList[i].ShipName + " product " + p.ProductName + selectedShipList[i].CurrentCapacity + " " + chosenShip.CurrentCapacity.ToString();
+                                    //lblMessage.Text += " " + selectedShipList[i].ShipName + " product " + p.ProductName + selectedShipList[i].CurrentCapacity + " " + chosenShip.CurrentCapacity.ToString();
                                     selectedShipList[i] = chosenShip; //Replace item with updated values     
 
                                     //See if ship already has an shipment id 
@@ -250,11 +252,24 @@ namespace ProductScheduler.ProductScheduler
                                             //Store the product to list associated to ship in Shipment Detail
                                             if (shipmentID.Equals(Convert.ToString(shipmentItem["Shipment ID"]))) //Shipment ID found
                                             {
-                                                //Add
+                                                //Addon to list
+                                                //shipmentItem["Shipment ID"] = shipmentID;
+                                                //shipmentItem.Update();
+                                                //lblMessage.Text += " works ";
                                             }
                                         }
                                     }
-                                    lblMessage.Text += " " + shipmentID;
+
+                                    //Create new shipment list in Shipment Details in warehouse
+                                    SPListItem item = listItems.Add();
+                                    item["Product Name"] = p.ProductName;
+                                    item["Shipment ID"] = shipmentID;
+                                    item["TEU"] = Convert.ToInt32(p.TEU);
+                                    item["Price"] = Convert.ToInt32(p.Price);
+                                    item["Product ID"] = Convert.ToInt32(p.ProductID);
+                                    item["Ship Name"] = selectedShipList[i].ShipName;
+
+                                    item.Update();
                                     //Switch status of product to Pending for Inspection in Client Shipping List
                                     //Updates Ship's status to Pending Inspection in Shipment Schedule
                                     //Updates ship's New Capacity in Shipment Schedule
@@ -262,6 +277,7 @@ namespace ProductScheduler.ProductScheduler
                                 }
                             }
                         }
+                        //Update/create a list for law to reference to.
                     }   //stop once all ships no longer has capacity or reach end of product list.
                 }
                 else
@@ -277,6 +293,23 @@ namespace ProductScheduler.ProductScheduler
             //update partner product list 
             //remove shipment details from list
             //change ship status to missed
+            /*
+             * 
+             * SPWeb mySite = SPContext.Current.Web;
+                SPListItemCollection listItems = mySite.Lists[TextBox1.Text].Items;
+                int itemCount = listItems.Count;
+
+                for (int k=0; k<itemCount; k++)
+                {
+                    SPListItem item = listItems[k];
+
+                    if (TextBox2.Text==item["Shipment ID"].ToString())
+                    {
+                        listItems.Delete(k);
+                    }
+                }
+
+             * */
         }
 
         private List<Product> getProductList()
