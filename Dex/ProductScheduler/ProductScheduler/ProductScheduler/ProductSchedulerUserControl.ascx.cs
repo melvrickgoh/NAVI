@@ -144,8 +144,13 @@ namespace ProductScheduler.ProductScheduler
 
             //For updating/adding new shipment
             SPWeb warehouseweb = GetSubSiteURL("Warehouse");
-            SPListItemCollection listItems = warehouseweb.Lists["Shipment Details"].Items;
+            SPListItemCollection warehouseListItems = warehouseweb.Lists["Shipment Details"].Items;
             SPList spShipmentList = warehouseweb.Lists["Shipment Details"];
+
+            //For updating partner items
+            SPWeb partnerweb = GetSubSiteURL("Partner Freight");
+            SPListItemCollection partnerListItems = partnerweb.Lists["Client Shipping List"].Items;
+            SPList spPartnerShippingList = partnerweb.Lists["Client Shipping List"];
 
             Boolean anySelected = false;
             List<string> selectShipNames = new List<string>();
@@ -215,70 +220,96 @@ namespace ProductScheduler.ProductScheduler
                     foreach (Product p in productList)
                     {
                         //Get the ship that will reach that destination fastest & has capacity
-                        SelectedShip chosenShip = getBestShipChoice(p, selectedShipList);
+                        if (p.Status.Equals("New") || p.Status.Equals("Missed"))
+                        {
+                            SelectedShip chosenShip = getBestShipChoice(p, selectedShipList);
 
-                        if (chosenShip == null)
-                        {
-                            //do nothing as no ship selected is going to the destination the product is scheduled for.
-                        }
-                        else
-                        {
-                            /*Best fit of ship found!
-                            **store the product to ship
-                            **Update ships new current capacity into the list of ships
-                            */
-                            for (int i = 0; i < selectedShipList.Count; i++)
+                            if (chosenShip == null)
                             {
-                                if (selectedShipList[i].ShipName.Equals(chosenShip.ShipName))
+                                //do nothing as no ship selected is going to the destination the product is scheduled for.
+                            }
+                            else
+                            {
+                                /*Best fit of ship found!
+                                **store the product to ship
+                                **Update ships new current capacity into the list of ships
+                                */
+                                for (int i = 0; i < selectedShipList.Count; i++)
                                 {
-                                    //lblMessage.Text += " " + selectedShipList[i].ShipName + " product " + p.ProductName + selectedShipList[i].CurrentCapacity + " " + chosenShip.CurrentCapacity.ToString();
-                                    selectedShipList[i] = chosenShip; //Replace item with updated values     
+                                    if (selectedShipList[i].ShipName.Equals(chosenShip.ShipName))
+                                    {
+                                        //lblMessage.Text += " " + selectedShipList[i].ShipName + " product " + p.ProductName + selectedShipList[i].CurrentCapacity + " " + chosenShip.CurrentCapacity.ToString();
+                                        selectedShipList[i] = chosenShip; //Replace item with updated values     
 
-                                    //See if ship already has an shipment id 
-                                    string shipmentID = "";
-                                    if (string.IsNullOrEmpty(selectedShipList[i].ShipmentID)) //New Shipment
-                                    {
-                                        //Get a new Shipment number
-                                        Guid guid = Guid.NewGuid();
-                                        shipmentID = selectedShipList[i].ShipName + "-" + guid.ToString();
-                                        selectedShipList[i].ShipmentID = shipmentID;
-                                    }
-                                    else
-                                    {
-                                        //Addon to existing shipment
-                                        shipmentID = selectedShipList[i].ShipmentID;
-                                        foreach (SPListItem shipmentItem in spShipmentList.Items)
+                                        //See if ship already has an shipment id 
+                                        string shipmentID = "";
+                                        if (string.IsNullOrEmpty(selectedShipList[i].ShipmentID)) //New Shipment
                                         {
-                                            //Store the product to list associated to ship in Shipment Detail
-                                            if (shipmentID.Equals(Convert.ToString(shipmentItem["Shipment ID"]))) //Shipment ID found
+                                            //Get a new Shipment number
+                                            Guid guid = Guid.NewGuid();
+                                            shipmentID = selectedShipList[i].ShipName + "-" + guid.ToString();
+                                            selectedShipList[i].ShipmentID = shipmentID;
+                                        }
+                                        else
+                                        {
+                                            //Addon to existing shipment
+                                            shipmentID = selectedShipList[i].ShipmentID;
+                                        }
+
+                                        //Create new shipment list in Shipment Details in warehouse
+                                        SPListItem shipmentItem = warehouseListItems.Add();
+                                        shipmentItem["Product Name"] = p.ProductName;
+                                        shipmentItem["Shipment ID"] = shipmentID;
+                                        shipmentItem["TEU"] = Convert.ToInt32(p.TEU);
+                                        shipmentItem["Price"] = Convert.ToInt32(p.Price);
+                                        shipmentItem["Product ID"] = Convert.ToInt32(p.ProductID);
+                                        shipmentItem["Ship Name"] = selectedShipList[i].ShipName;
+
+                                        shipmentItem.Update();
+
+                                        //Switch status of product to Pending for Inspection in Client Shipping List
+                                        foreach (SPListItem partnerProduct in spPartnerShippingList.Items)
+                                        {
+                                            if (p.ProductID.Equals(Convert.ToString(partnerProduct["Product ID"])))
                                             {
-                                                //Addon to list
-                                                //shipmentItem["Shipment ID"] = shipmentID;
-                                                //shipmentItem.Update();
-                                                //lblMessage.Text += " works ";
+                                                //Updates the product status to Pending Inspection
+                                                partnerProduct["Status"] = "Pending Inspection";
+                                                partnerProduct.Update();
                                             }
                                         }
+
+                                        //Assigned Shipment ID to ship if it is new.
+                                        if (string.IsNullOrEmpty(selectedShipList[i].ShipmentID))
+                                        {
+                                            selectedShipList[i].ShipmentID = shipmentID;
+                                        }
                                     }
-
-                                    //Create new shipment list in Shipment Details in warehouse
-                                    SPListItem item = listItems.Add();
-                                    item["Product Name"] = p.ProductName;
-                                    item["Shipment ID"] = shipmentID;
-                                    item["TEU"] = Convert.ToInt32(p.TEU);
-                                    item["Price"] = Convert.ToInt32(p.Price);
-                                    item["Product ID"] = Convert.ToInt32(p.ProductID);
-                                    item["Ship Name"] = selectedShipList[i].ShipName;
-
-                                    item.Update();
-                                    //Switch status of product to Pending for Inspection in Client Shipping List
-                                    //Updates Ship's status to Pending Inspection in Shipment Schedule
-                                    //Updates ship's New Capacity in Shipment Schedule
-                                    //Update ship shipment id in Shipment Schedule
                                 }
                             }
                         }
-                        //Update/create a list for law to reference to.
-                    }   //stop once all ships no longer has capacity or reach end of product list.
+
+                    }
+                    foreach (SelectedShip sS in selectedShipList)
+                    {
+                        if (string.IsNullOrEmpty(sS.ShipmentID))
+                        {
+
+                        }
+                    }
+                    //Updates Ship's status to Pending Inspection in Shipment Schedule
+                    /*foreach (SPListItem shipSchedule in spSelectedShipLists.Items)
+                    {
+                        if (p.ProductID.Equals(Convert.ToString(partnerProduct["Product ID"])))
+                        {
+                            //Updates the product status to Pending Inspection
+                            shipSchedule["Status"] = "Pending Inspection";
+                            shipSchedule.Update();
+                        }
+                    }*/
+                    //Updates ship's New Capacity in Shipment Schedule
+                    //Update ship shipment id in Shipment Schedule
+                    //Update/create a list for law to reference to.
+                    //stop once all ships no longer has capacity or reach end of product list.
                 }
                 else
                 {
