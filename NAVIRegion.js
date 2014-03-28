@@ -171,7 +171,7 @@ L.NAVIRegion = L.Polygon.extend({
 											console.log(self.berthID + '.' + self.currentSlot);
 											self.timeslots.put(self.berthID+'.'+self.currentSlot,new BerthRecord(shipID,shipName,Math.round(self.berthID),self.currentSlot));
 			
-											//self.updateDBAddUser(user,messageToSend);
+											self.updateSPShipAssigned();
 												
 											self.removeNotificationUI();
 												
@@ -387,6 +387,16 @@ L.NAVIRegion = L.Polygon.extend({
 					});
 
 		});
+	},
+	
+	updateSPShipAssigned: function(){
+		var timeAssigned = new Date();
+		timeAssigned.setHours(this.currentSlot);
+		timeAssigned.setMinutes(0);
+		timeAssigned.setSeconds(0);
+		var incomingShipsUpdateHash = new Hashtable();
+		incomingShipsUpdateHash.put('Ship_x0020_Status','Assigned');
+		SPWS.updateList('Incoming Ships',[])
 	}
 });
 

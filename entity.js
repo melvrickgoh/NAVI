@@ -30,8 +30,11 @@ function ShipmentManager(){
 	}
 }
 
-function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods,currentCapacity){
+function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods,currentCapacity,workflowURL){
 	this.parseDestinations = function(destinationString){
+		if (destinationString==undefined){
+			return '';
+		}
 		return destinationString.split(",");
 	},
 	
@@ -46,6 +49,9 @@ function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods
 	},
 	
 	this.parseGoods = function(goodsString){
+		if (goodsString==undefined){
+			return [];
+		}
 		var goodsArr = goodsString.split(";");
 		var goods = [];
 		for (var key in goodsArr){
@@ -59,6 +65,7 @@ function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods
 				client:goodSingleArr[4]
 			});
 		}
+		return goods;
 	};
 	
 	this.shipID = shipID,
@@ -67,7 +74,8 @@ function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods
 	this.arrivalTime = this.parseTime(timeString),
 	this.capacity = this.parseCapacity(capacity),
 	this.currentGoods = this.parseGoods(currentGoods),
-	this.currentCapacity = this.parseCapacity(currentCapacity);
+	this.currentCapacity = this.parseCapacity(currentCapacity),
+	this.workflowURL = workflowURL;
 	
 	this.isHeadingTo = function(destinationName){
 		if (this.destinations.indexOf(destinationName)!=0){
@@ -208,9 +216,9 @@ function ShipManager(){
 	},	
 	
 	this.getAllIncomingShips = function(){
-		var viewValues = ["ShipID","ShipName","Destinations","ArrivalTime","Capacity","CurrentGoods","CurrentCapacity"];
+		var viewValues = ["Ship_x0020_ID","Ship_x0020_Name","Destinations","Arrival_x0020_Time","Capacity","Current_x0020_Goods","Current_x0020_Capacity","Workflow_x0020_URL"];
 		var self = this;
-		SPWS.getList("IncomingShips",viewValues,function(xData, Status){
+		SPWS.getList("Incoming Ships",viewValues,function(xData, Status){
 			self.allShips.clear();
 			$(xData.responseXML).SPFilterNode("z:row").each(function () {
 				var xitem = $(this);
@@ -219,9 +227,10 @@ function ShipManager(){
 				var destinations = xitem.attr('ows_Destinations');
 				var arrivalTime = xitem.attr('ows_Arrival_x0020_Time');
 				var capacity = xitem.attr('ows_Capacity');
-				var currentGoods = 'Pasta,Dammam,1000,5,DHL;Jello-Shots,Kolkata,2000,5,DHL';//xitem.attr('ows_CurrentGoods');
-				var currentCapacity = capacity;//xitem.attr('ows_CurrentCapacity');
-				self.allShips.put(shipName,new Ship(shipID,shipName,destinations,arrivalTime,capacity,currentGoods,currentCapacity));
+				var currentGoods = xitem.attr('ows_Current_x0020_Goods');
+				var currentCapacity = xitem.attr('ows_Current_x0020_Capacity');
+				var workflowURL = xitem.attr('ows_Workflow_x0020_URL');
+				self.allShips.put(shipName,new Ship(shipID,shipName,destinations,arrivalTime,capacity,currentGoods,currentCapacity,workflowURL));
             });
 			return self.allShips;
 		});
@@ -318,16 +327,16 @@ function BerthManager(){
 	},
 	
 	this.getTodaysBerthingRecords = function(){
-		var viewValues = ["Ship ID","Ship Name","Berth","Time"];
+		var viewValues = ["Ship_x0020_ID","Ship_x0020_Name","Berth_x0020_ID","Docking_x0020_Time"];
 		var self = this;
 		berthingRecords = [];
-		SPWS.getList("Ship Berth Records",viewValues,function(xData, Status){
+		SPWS.getList("Shipment Schedule",viewValues,function(xData, Status){
 			$(xData.responseXML).SPFilterNode("z:row").each(function () {
 				var xitem = $(this);
 				var shipID = xitem.attr('ows_Ship_x0020_ID');
-				var shipName = xitem.attr('ows_Title');
-				var berthID = xitem.attr('ows_Berth');
-				var time = xitem.attr('ows_Time');
+				var shipName = xitem.attr('ows_Ship_x0020_Name');
+				var berthID = xitem.attr('ows_Berth_x0020_ID');
+				var time = xitem.attr('ows_Docking_x0020_Time');
 				//if (typeof time !== Number){
 					time = new Date(time);
 				//}
