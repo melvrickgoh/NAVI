@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D5EA4ECB-CFC3-404B-8703-8F12B0295C89}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TeamAllocation</RootNamespace>
+    <AssemblyName>TeamAllocation</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{BB1F664B-9266-4fd6-B973-E1E44974B511};{14822709-B5A1-4724-98CA-57A101D1B079};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SandboxedSolution>False</SandboxedSolution>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.SharePoint" />
+    <Reference Include="Microsoft.SharePoint.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="HR\HR.cs" />
+    <Compile Include="HR\HRUserControl.ascx.cs">
+      <DependentUpon>HRUserControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HR\HRUserControl.ascx.designer.cs">
+      <DependentUpon>HRUserControl.ascx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tasks_F\Tasks.cs" />
+    <Compile Include="Tasks_F\TasksUserControl.ascx.cs">
+      <DependentUpon>TasksUserControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Tasks_F\TasksUserControl.ascx.designer.cs">
+      <DependentUpon>TasksUserControl.ascx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Task_O\Task_O.cs" />
+    <Compile Include="Task_O\Task_OUserControl.ascx.cs">
+      <DependentUpon>Task_OUserControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Task_O\Task_OUserControl.ascx.designer.cs">
+      <DependentUpon>Task_OUserControl.ascx.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Task_S\Task_S.cs" />
+    <Compile Include="Task_S\Task_SUserControl.ascx.cs">
+      <DependentUpon>Task_SUserControl.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Task_S\Task_SUserControl.ascx.designer.cs">
+      <DependentUpon>Task_SUserControl.ascx.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Features\Feature1\Feature1.feature">
+      <FeatureId>{2588f82e-8669-40b0-a106-8ed4247030ee}</FeatureId>
+    </None>
+    <None Include="HR\HR.webpart" />
+    <None Include="HR\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{5bef3d18-fc9d-4476-bee2-3dad41933ab0}</SharePointProjectItemId>
+    </None>
+    <None Include="key.snk" />
+    <None Include="Package\Package.package">
+      <PackageId>{ad7de6c4-f90b-4344-8a14-c6492ee4c3d9}</PackageId>
+    </None>
+    <None Include="Package\Package.Template.xml">
+      <DependentUpon>Package.package</DependentUpon>
+    </None>
+    <None Include="Tasks_F\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{9e084cb7-8c08-4eef-9e05-c753430d1c56}</SharePointProjectItemId>
+    </None>
+    <None Include="Tasks_F\Tasks.webpart" />
+    <None Include="Task_O\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{9c3efbd0-dd6f-4a7b-bfe2-7c6bd225420c}</SharePointProjectItemId>
+    </None>
+    <None Include="Task_O\Task_O.webpart" />
+    <None Include="Task_S\SharePointProjectItem.spdata">
+      <SharePointProjectItemId>{02266e72-9075-456e-9427-1d25885d98e7}</SharePointProjectItemId>
+    </None>
+    <None Include="Task_S\Task_S.webpart" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Features\Feature1\Feature1.Template.xml">
+      <DependentUpon>Feature1.feature</DependentUpon>
+    </Content>
+    <Content Include="HR\Elements.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="HR\HRUserControl.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Tasks_F\Elements.xml" />
+    <Content Include="Tasks_F\TasksUserControl.ascx" />
+    <Content Include="Task_O\Elements.xml" />
+    <Content Include="Task_O\Task_OUserControl.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+    <Content Include="Task_S\Elements.xml" />
+    <Content Include="Task_S\Task_SUserControl.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\SharePointTools\Microsoft.VisualStudio.SharePoint.targets" />
+</Project>
