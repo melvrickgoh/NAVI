@@ -24,6 +24,7 @@ namespace ProductScheduler.ProductScheduler
             return null;
         }
 
+        //Populating dropdownlist of docking time & display ships
         protected void Page_Load(object sender, EventArgs e)
         {
             lblMessage.Text = "";
@@ -74,6 +75,7 @@ namespace ProductScheduler.ProductScheduler
             }
         }
 
+        //Dynamically refreshes the display of ships upon dropdownlist selection
         protected void ddlDockingTime_SelectedIndexChanged1(object sender, EventArgs e)
         {
             SPList spShipLists = SPContext.Current.Web.Lists["Shipment Schedule"];
@@ -248,7 +250,7 @@ namespace ProductScheduler.ProductScheduler
                                             //Get a new Shipment number
                                             Guid guid = Guid.NewGuid();
                                             shipmentID = selectedShipList[i].ShipName + "-" + guid.ToString();
-                                            selectedShipList[i].ShipmentID = shipmentID;
+                                            selectedShipList[i].ShipmentID = shipmentID; //Assigned Shipment ID to ship if it is new.
                                         }
                                         else
                                         {
@@ -278,11 +280,10 @@ namespace ProductScheduler.ProductScheduler
                                             }
                                         }
 
-                                        //Assigned Shipment ID to ship if it is new.
-                                        if (string.IsNullOrEmpty(selectedShipList[i].ShipmentID))
-                                        {
-                                            selectedShipList[i].ShipmentID = shipmentID;
-                                        }
+
+                                        //if (string.IsNullOrEmpty(selectedShipList[i].ShipmentID)){
+                                        //    selectedShipList[i].ShipmentID = shipmentID;
+                                        //}
                                     }
                                 }
                             }
@@ -291,23 +292,24 @@ namespace ProductScheduler.ProductScheduler
                     }
                     foreach (SelectedShip sS in selectedShipList)
                     {
-                        if (string.IsNullOrEmpty(sS.ShipmentID))
+                        if (!string.IsNullOrEmpty(sS.ShipmentID)) //There is a shipment assigned to this ship
                         {
+                            //Look thru Shipment Schedule list and update status, new capacity, shipment id
+                            foreach (SPListItem shipScheduleItem in spSelectedShipLists.Items) //Loop thru list items
+                            {
+                                if (sS.ShipID.Equals(Convert.ToString(shipScheduleItem["Ship ID"])))
+                                {
+                                    //A Match Found
+                                    shipScheduleItem["Status"] = "Pending Inspection"; //Updates Ship's Status
+                                    shipScheduleItem["Shipment ID"] = sS.ShipmentID; //Update ship shipment id in Shipment Schedule
+                                    shipScheduleItem["New Capacity"] = Convert.ToInt32(sS.NewCapacity); //Updates ship's New Capacity in Shipment Schedule
 
+                                    shipScheduleItem.Update();
+                                }
+                            }
                         }
                     }
-                    //Updates Ship's status to Pending Inspection in Shipment Schedule
-                    /*foreach (SPListItem shipSchedule in spSelectedShipLists.Items)
-                    {
-                        if (p.ProductID.Equals(Convert.ToString(partnerProduct["Product ID"])))
-                        {
-                            //Updates the product status to Pending Inspection
-                            shipSchedule["Status"] = "Pending Inspection";
-                            shipSchedule.Update();
-                        }
-                    }*/
-                    //Updates ship's New Capacity in Shipment Schedule
-                    //Update ship shipment id in Shipment Schedule
+
                     //Update/create a list for law to reference to.
                     //stop once all ships no longer has capacity or reach end of product list.
                 }
@@ -376,9 +378,8 @@ namespace ProductScheduler.ProductScheduler
         private SelectedShip getBestShipChoice(Product p, List<SelectedShip> selectedShipList)
         {
             //Saves the ship with best destination index
-            //Destination index
             SelectedShip chosenShip = new SelectedShip();
-            int destinationBestIndex = -1;
+            int destinationBestIndex = -1;  //Destination index
 
             //Loop through list of hashtables
             foreach (SelectedShip sS in selectedShipList)
@@ -387,16 +388,30 @@ namespace ProductScheduler.ProductScheduler
                 //Check if destination exist in a given ship's total destination list
                 if (shipHashtable.Contains(p.Destination)) //Exists
                 {
-                    //If have capacity
-                    if (p.TEU <= Convert.ToInt32(sS.CurrentCapacity))
+                    //Capacity validation on either current capacity or new capcity
+                    if (string.IsNullOrEmpty(sS.NewCapacity)) //Nothing has been assigned to this ship yet
                     {
-                        //Capture if index is better
-                        //-1 = no record yet, first attempt on comparison
-                        //Store the product information to the best ship choice
-                        if (destinationBestIndex == -1 || (int)shipHashtable[p.Destination] < destinationBestIndex)
+                        if (p.TEU <= Convert.ToInt32(sS.CurrentCapacity)) //So use the current capacity for comparison
                         {
-                            destinationBestIndex = (int)shipHashtable[p.Destination];
-                            chosenShip = sS;
+                            //Capture if index is better
+                            //-1 = no record yet, first attempt on comparison
+                            //Store the product information to the best ship choice
+                            if (destinationBestIndex == -1 || (int)shipHashtable[p.Destination] < destinationBestIndex)
+                            {
+                                destinationBestIndex = (int)shipHashtable[p.Destination];
+                                chosenShip = sS;
+                            }
+                        }
+                    }
+                    else //Already has things assigned to this ship
+                    {
+                        if (p.TEU <= Convert.ToInt32(sS.NewCapacity)) //Uses latest capacity for comparison
+                        {
+                            if (destinationBestIndex == -1 || (int)shipHashtable[p.Destination] < destinationBestIndex)
+                            {
+                                destinationBestIndex = (int)shipHashtable[p.Destination];
+                                chosenShip = sS;
+                            }
                         }
                     }
                 }
@@ -405,12 +420,17 @@ namespace ProductScheduler.ProductScheduler
             if (chosenShip != null)
             {
                 //Updates chosenShips current capacity
-                int currentCapacity = 0;
-                currentCapacity = Convert.ToInt32(chosenShip.CurrentCapacity);
-                currentCapacity -= p.TEU;
-                chosenShip.CurrentCapacity = currentCapacity.ToString();
+                if (string.IsNullOrEmpty(chosenShip.NewCapacity)) //Nothing has been assigned to this ship yet
+                {
+                    //CurrentCapcity - product TEU = New Capacity
+                    chosenShip.NewCapacity = (Convert.ToInt32(chosenShip.CurrentCapacity) - p.TEU).ToString();
+                }
+                else
+                {
+                    //NewCapacity - product TEU
+                    chosenShip.NewCapacity = (Convert.ToInt32(chosenShip.NewCapacity) - p.TEU).ToString();
+                }
             }
-
             return chosenShip;
         }
 
