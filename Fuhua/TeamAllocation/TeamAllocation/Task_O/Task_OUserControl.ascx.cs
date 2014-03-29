@@ -35,7 +35,8 @@ namespace TeamAllocation.Task_O
                 try
                 {
                     if (WebShips == null)
-                        WebShips = getSubSiteURL("IncomingShips");
+                        WebShips = SPContext.Current.Site.RootWeb;
+                    //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
 
                     DropDownList1.Items.Add(new ListItem("All", "All"));
                     SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
@@ -59,7 +60,9 @@ namespace TeamAllocation.Task_O
         protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (WebShips == null)
-                WebShips = getSubSiteURL("IncomingShips");
+                WebShips = SPContext.Current.Site.RootWeb;
+            //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
+            
             SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
             
             string selectedValue = DropDownList1.SelectedItem.Value;
@@ -79,10 +82,12 @@ namespace TeamAllocation.Task_O
                         ship.F = Convert.ToString(item["F"]);
                         ship.O = Convert.ToString(item["O"]);
                         ship.S = Convert.ToString(item["S"]);
-                        ship.F_Approved = Convert.ToBoolean(item["F_Approved"]);
-                        ship.O_Approved = Convert.ToBoolean(item["O_Approved"]);
-                        ship.S_Approved = Convert.ToBoolean(item["S_Approved"]);
+                        ship.F_Approved = Convert.ToString(item["F_Approved"]);
 
+                        ship.O_Approved = Convert.ToString(item["O_Approved"]);
+
+                        ship.S_Approved = Convert.ToString(item["S_Approved"]);
+                        
                         m_shipList.Add(ship);
                     } 
                   
@@ -105,12 +110,10 @@ namespace TeamAllocation.Task_O
 
             Label2.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
                 
-            if (ship.F != null && ship.F.Length != 0 && !O_approved.Contains(ship.F))
-                O_approved.Add(ship.F);
-            
+           
             if (GridView1.SelectedIndex >= 0)
             {
-                if (ship.O_Approved)
+                if (ship.O_Approved.CompareTo("Yes") == 0)
                     return;
             }
         }
@@ -122,10 +125,10 @@ namespace TeamAllocation.Task_O
                 Ship ship = m_shipList[GridView1.SelectedIndex];
 
                 if (RadioButton1.Checked)
-                    ship.S_Approved = true;
+                    ship.O_Approved = "Yes";
 
                 if (RadioButton2.Checked)
-                    ship.S_Approved = false;
+                    ship.O_Approved = "NO";
 
                 m_shipList[GridView1.SelectedIndex] = ship;
                 
@@ -133,14 +136,16 @@ namespace TeamAllocation.Task_O
                 GridView1.DataBind();
 
                 if (WebShips == null)
-                    WebShips = getSubSiteURL("IncomingShips");//get the site
+                    WebShips = SPContext.Current.Site.RootWeb;
+                //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
+                
                 SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
              
                 foreach (SPListItem item in list.Items)
                 {
 
                     string title = Convert.ToString(item["Ship Name"]);
-                    if (string.Compare(Convert.ToString(item["S"]), DropDownList1.SelectedItem.Value) == 0 &&
+                    if (string.Compare(Convert.ToString(item["O"]), DropDownList1.SelectedItem.Value) == 0 &&
                         string.Compare(title, ship.Title) == 0
                         )
                     {
@@ -164,9 +169,9 @@ namespace TeamAllocation.Task_O
         public string F { get; set; }
         public string O { get; set; }
         public string S { get; set; }
-        public bool F_Approved { get; set; }
-        public bool O_Approved { get; set; }
-        public bool S_Approved { get; set; }
+        public string F_Approved { get; set; }
+        public string O_Approved { get; set; }
+        public string S_Approved { get; set; }
 
     }
 }

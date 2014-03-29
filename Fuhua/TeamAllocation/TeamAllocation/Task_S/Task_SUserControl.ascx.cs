@@ -37,11 +37,12 @@ namespace TeamAllocation.Task_S
                 try
                 {
                    if (WebShips == null)
-                        WebShips = getSubSiteURL("IncomingShips"); //get the site
+                       WebShips = SPContext.Current.Site.RootWeb;
+                     //   WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
 
                     DropDownListS.Items.Add(new ListItem("All", "All")); //add items into dropdown list
                     SPList list = WebShips.Lists["Shipment Schedule"]; // get list from site
-
+                    
 
                     foreach (SPListItem item in list.Items)
                     {
@@ -62,7 +63,9 @@ namespace TeamAllocation.Task_S
         protected void DropDownListS_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (WebShips == null)
-                WebShips = getSubSiteURL("IncomingShips"); //get the site
+                //WebShips = getSubSiteURL("IncomingShips"); //get the site //CHANGE THIS: get the parent site
+                WebShips = SPContext.Current.Site.RootWeb;
+            
             SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
             string selectedValue = DropDownListS.SelectedItem.Value;
 
@@ -83,9 +86,11 @@ namespace TeamAllocation.Task_S
                         ship.F = Convert.ToString(item["F"]);
                         ship.O = Convert.ToString(item["O"]);
                         ship.S = Convert.ToString(item["S"]);
-                        ship.F_Approved = Convert.ToBoolean(item["F_Approved"]);
-                        ship.O_Approved = Convert.ToBoolean(item["O_Approved"]);
-                        ship.S_Approved = Convert.ToBoolean(item["S_Approved"]);
+                        ship.F_Approved = Convert.ToString(item["F_Approved"]);
+
+                        ship.O_Approved = Convert.ToString(item["O_Approved"]);
+
+                        ship.S_Approved = Convert.ToString(item["S_Approved"]);
                         
                         m_shipList.Add(ship);
                     } 
@@ -114,24 +119,24 @@ namespace TeamAllocation.Task_S
 
             if (GridViewS.SelectedIndex >= 0)
             {
-                if (ship.S_Approved)
+                if (ship.S_Approved.CompareTo("Yes") == 0)
                     return;
             }
         }
 
         protected void ButtonS_Click(object sender, EventArgs e)
         {
-
+            //THE RADIO BUTTON: SHOULD NOT BE ABLE TOMM CLICK ON BOTH
 
             if (GridViewS.SelectedIndex != -1)
             {
                 Ship ship = m_shipList[GridViewS.SelectedIndex];
 
                 if (RadioButtonS1.Checked)
-                    ship.S_Approved = true;
+                    ship.S_Approved = "Yes"; //CHANGE THIS TO STRING: APPROVED
 
                 if (RadioButtonS2.Checked)
-                    ship.S_Approved = false;
+                    ship.S_Approved = "NO"; //CHANGE THIS TO STRING: REJECTED
                 
                 m_shipList[GridViewS.SelectedIndex] = ship;
 
@@ -139,7 +144,8 @@ namespace TeamAllocation.Task_S
                 GridViewS.DataBind();
 
                 if (WebShips == null)
-                    WebShips = getSubSiteURL("IncomingShips");//get the site
+                    //WebShips = getSubSiteURL("IncomingShips"); //get the site //CHANGE THIS: get the parent site
+                      WebShips = SPContext.Current.Site.RootWeb;
                 SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
              
                 foreach (SPListItem item in list.Items)
@@ -168,9 +174,8 @@ namespace TeamAllocation.Task_S
         public string F { get; set; }
         public string O { get; set; }
         public string S { get; set; }
-        public bool F_Approved { get; set; }
-        public bool O_Approved { get; set; }
-        public bool S_Approved { get; set; }
-
+        public string F_Approved { get; set; }
+        public string O_Approved { get; set; }
+        public string S_Approved { get; set; }
     }
 }

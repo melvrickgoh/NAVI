@@ -126,7 +126,9 @@
       <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="Tasks_F\Elements.xml" />
-    <Content Include="Tasks_F\TasksUserControl.ascx" />
+    <Content Include="Tasks_F\TasksUserControl.ascx">
+      <SubType>ASPXCodeBehind</SubType>
+    </Content>
     <Content Include="Task_O\Elements.xml" />
     <Content Include="Task_O\Task_OUserControl.ascx">
       <SubType>ASPXCodeBehind</SubType>

@@ -38,8 +38,9 @@ namespace TeamAllocation.Tasks
                 try
                 {
                     if (WebShips == null)
-                        WebShips = getSubSiteURL("IncomingShips");
-
+                        WebShips = SPContext.Current.Site.RootWeb;
+                    //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
+            
                     DropDownListF.Items.Add(new ListItem("All", "All"));
                     SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
              
@@ -63,7 +64,9 @@ namespace TeamAllocation.Tasks
         protected void DropDownListF_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (WebShips == null)
-                WebShips = getSubSiteURL("IncomingShips");
+                WebShips = SPContext.Current.Site.RootWeb;
+            //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
+            
             SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
             
             string selectedValue = DropDownListF.SelectedItem.Value;
@@ -82,10 +85,12 @@ namespace TeamAllocation.Tasks
                         ship.F = Convert.ToString(item["F"]);
                         ship.O = Convert.ToString(item["O"]);
                         ship.S = Convert.ToString(item["S"]);
-                        ship.F_Approved = Convert.ToBoolean(item["F_Approved"]);
-                        ship.O_Approved = Convert.ToBoolean(item["O_Approved"]);
-                        ship.S_Approved = Convert.ToBoolean(item["S_Approved"]);
-
+                        ship.F_Approved = Convert.ToString(item["F_Approved"]);
+                        
+                        ship.O_Approved = Convert.ToString(item["O_Approved"]);
+                        
+                        ship.S_Approved = Convert.ToString(item["S_Approved"]);
+                        
                         m_shipList.Add(ship);
                     }
                 }
@@ -107,12 +112,10 @@ namespace TeamAllocation.Tasks
 
             LabelF2.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
 
-            if (ship.F != null && ship.F.Length != 0 && !F_approved.Contains(ship.F))
-                F_approved.Add(ship.F);
-
+          
             if (GridViewF.SelectedIndex >= 0)
             {
-                if (ship.F_Approved)
+                if (ship.F_Approved.CompareTo("Yes") == 0)
                     return;
             }
         }
@@ -126,10 +129,10 @@ namespace TeamAllocation.Tasks
                 Ship ship = m_shipList[GridViewF.SelectedIndex];
 
                 if (RadioButtonF1.Checked)
-                ship.F_Approved = true;
+                ship.F_Approved = "Yes";
 
                 if (RadioButtonF2.Checked)
-                ship.F_Approved = false;
+                ship.F_Approved = "No";
                 
                 m_shipList[GridViewF.SelectedIndex] = ship;
 
@@ -137,7 +140,9 @@ namespace TeamAllocation.Tasks
                 GridViewF.DataBind();
 
                 if (WebShips == null)
-                    WebShips = getSubSiteURL("IncomingShips"); //get the site
+                    WebShips = SPContext.Current.Site.RootWeb;
+                //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
+                
                 SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
              
                 foreach (SPListItem item in list.Items)
@@ -147,7 +152,6 @@ namespace TeamAllocation.Tasks
                         string.Compare(title, ship.Title) == 0
                         )
                     {
-
                         item["F_Approved"] = ship.F_Approved;
                         item.Update();
                         Debug.WriteLine("ITEM UPDATED");
@@ -169,9 +173,9 @@ namespace TeamAllocation.Tasks
         public string F { get; set; }
         public string O { get; set; }
         public string S { get; set; }
-        public bool F_Approved { get; set; }
-        public bool O_Approved { get; set; }
-        public bool S_Approved { get; set; }
+        public string F_Approved { get; set; }
+        public string O_Approved { get; set; }
+        public string S_Approved { get; set; }
 
     }
 }

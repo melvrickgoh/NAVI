@@ -12,7 +12,6 @@ namespace TeamAllocation.HR
 
     public partial class HRUserControl : UserControl
     {
-        SPWeb WebShips = null;
         SPWeb getSubSiteURL(string subsiteTitle)
         {
             for (int i = 0; i < SPContext.Current.Site.AllWebs.Count; i++)
@@ -24,37 +23,67 @@ namespace TeamAllocation.HR
             }
             return null;
         }
+        SPWeb Finance = null;
+        SPWeb Operations = null;
+        SPWeb Safety = null;
 
         static List<Ship> m_shipList = new List<Ship>(); //list of ships
         static List<string> FPeopleAssigned = new List<string>(); //list of people assigned
         static List<string> OPeopleAssigned = new List<string>();
         static List<string> SPeopleAssigned = new List<string>();
-        static string[] FPeople = new string[] { "Siu Ngee", "YG", "Leon", "Jasmine" }; //list of people in each department
-        static string[] OPeople = new string[] { "Dex", "Law", "FH", "Mel" };
-        static string[] SPeople = new string[] { "YY", "WT", "Delphine", "YC" };
+        
+        //static string[] FPeople = new string[] { "Siu Ngee", "YG", "Leon", "Jasmine" }; //list of people in each department
+        //static string[] OPeople = new string[] { "Dex", "Law", "FH", "Mel" };
+        //static string[] SPeople = new string[] { "YY", "WT", "Delphine", "YC" };
+
+        static string[] FPeople;
+        static string[] OPeople;
+        static string[] SPeople;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             Label1.Text = "";
 
+            if (Finance == null)
+                Finance = getSubSiteURL("Finance"); //get the site
+            SPList Flist = Finance.Lists["HR"]; // get list from site
+            
+            if (Operations == null)
+                Operations = getSubSiteURL("Ops"); //get the site
+            SPList Olist = Operations.Lists["HR"]; // get list from site
+            
+            if (Safety == null)
+                Safety = getSubSiteURL("Safety"); //get the site
+            SPList Slist = Safety.Lists["HR"]; // get list from site
+
+            FPeople = new string[Flist.ItemCount];
+            for (int i = 0; i < Flist.ItemCount; i++)
+                FPeople[i] = Convert.ToString(Flist.Items[i]["Title"]);
+            OPeople = new string[Olist.ItemCount];
+            for (int i = 0; i < Olist.ItemCount; i++)
+                OPeople[i] = Convert.ToString(Olist.Items[i]["Title"]);
+            SPeople = new string[Slist.ItemCount];
+            for (int i = 0; i < Slist.ItemCount; i++)
+                SPeople[i] = Convert.ToString(Slist.Items[i]["Title"]);
+
+
             if (!Page.IsPostBack)
             {
                 try
                 {
-                    if (WebShips == null)
-                        WebShips = getSubSiteURL("IncomingShips"); //get the site
-
+                    
                     DropDownList1.Items.Add(new ListItem("All", "All")); //add items into dropdown list
-                    SPList list = WebShips.Lists["Shipment Schedule"]; // get list from site
+                    //SPList list = WebShips.Lists["Shipment Schedule"]; //get list from site
+                    SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
 
 
                     foreach (SPListItem item in list.Items)
                     {
-                        string time = Convert.ToString(item["Docking Time"]); // get column from list
+                        string time = Convert.ToString(item["Docking Time"]); //get column from list
 
                         if (!DropDownList1.Items.Contains(new ListItem(time)))
                         {
-                            DropDownList1.Items.Add(new ListItem(time, time)); // add items into dropdown from list
+                            DropDownList1.Items.Add(new ListItem(time, time)); //add items into dropdown from list
                         }
                     }
                 }
@@ -67,9 +96,11 @@ namespace TeamAllocation.HR
 
         protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (WebShips == null)
-                WebShips = getSubSiteURL("IncomingShips"); //get the site
-            SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
+            //if (WebShips == null)
+              //  WebShips = getSubSiteURL("IncomingShips"); //get the site
+
+           
+            SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
             string selectedValue = DropDownList1.SelectedItem.Value;
             
             try
@@ -138,12 +169,18 @@ namespace TeamAllocation.HR
                     return;
             }
 
-            for (int i = 0; i < 4; i++) //display unassigned people at radio button for selection
+            for (int i = 0; i < FPeople.Length; i++) //display unassigned people at radio button for selection
             {
                 if (!FPeopleAssigned.Contains(FPeople[i]))
                     RadioButtonList1.Items.Add(FPeople[i]);
+            }
+            for (int i = 0; i < OPeople.Length; i++) //display unassigned people at radio button for selection
+            {
                 if (!OPeopleAssigned.Contains(OPeople[i]))
                     RadioButtonList2.Items.Add(OPeople[i]);
+            }
+            for (int i = 0; i < SPeople.Length; i++) //display unassigned people at radio button for selection
+            {
                 if (!SPeopleAssigned.Contains(SPeople[i]))
                     RadioButtonList3.Items.Add(SPeople[i]);
             }
@@ -165,10 +202,10 @@ namespace TeamAllocation.HR
                 
                 GridView1.DataSource = m_shipList;
                 GridView1.DataBind();
-                if (WebShips == null)
-                    WebShips = getSubSiteURL("IncomingShips");//get the site
-                SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
-                
+                //if (WebShips == null)
+                  //  WebShips = getSubSiteURL("IncomingShips");//get the site
+                SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
+
                 foreach (SPListItem item in list.Items)
                 {
                     string title = Convert.ToString(item["Ship Name"]);

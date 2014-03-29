@@ -54,8 +54,10 @@
 <table class="style1">
     <tr>
         <td class="style3">
-            <asp:RadioButton ID="RadioButtonS1" runat="server" Text="YES" />
-            <asp:RadioButton ID="RadioButtonS2" runat="server" Text="NO" />
+            <asp:RadioButton ID="RadioButtonS1" runat="server" Text="YES" 
+                GroupName="groupYN" />
+            <asp:RadioButton ID="RadioButtonS2" runat="server" Text="NO" 
+                GroupName="groupYN" />
         </td>
         <td>
             <asp:Button ID="GOS" runat="server" onclick="ButtonS_Click" Text="GO" />
