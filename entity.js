@@ -30,7 +30,7 @@ function ShipmentManager(){
 	}
 }
 
-function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods,currentCapacity,workflowURL){
+function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods,currentCapacity,workflowURL,SPRowID){
 	this.parseDestinations = function(destinationString){
 		if (destinationString==undefined){
 			return '';
@@ -76,6 +76,7 @@ function Ship(shipID,shipName,destinationString,timeString,capacity,currentGoods
 	this.currentGoods = this.parseGoods(currentGoods),
 	this.currentCapacity = this.parseCapacity(currentCapacity),
 	this.workflowURL = workflowURL;
+	this.SPRowID = SPRowID;
 	
 	this.isHeadingTo = function(destinationName){
 		if (this.destinations.indexOf(destinationName)!=0){
@@ -142,6 +143,7 @@ function ShipContainer(){
 	    var $label = $(document.createElement('span'));
 	    $label.attr('class','content_font-12');
 	    $label.html(ship.shipName);
+		$label.attr('title','Arriving on ' + new Date(ship.arrivalTime));
 	    
 	    var shipName = ship.shipName;
 	    
@@ -201,11 +203,35 @@ function ShipManager(){
 	this.shipContainer = new ShipContainer();
 	this.shipContainer.initialize();
 	
+	this.shipSortAsc = function(ship1,ship2){
+		//oldest to newest
+		var date1 = ship1.arrivalTime,
+		date2 = ship2.arrivalTime;
+		  if (date1 > date2) return 1;
+		  if (date1 < date2) return -1;
+		  return 0;
+	},
+	
+	this.shipSortDsc = function(ship1,ship2){
+		//newest to oldest
+		var date1 = ship1.arrivalTime,
+		date2 = ship2.arrivalTime;
+		if (date1 > date2) return -1;
+		  if (date1 < date2) return 1;
+		  return 0;
+	},
+	
 	this.populateShipContainer = function(){
 		this.getAllIncomingShips();
-		var shipsArray = this.allShips.keys();
+		/*var shipsArray = this.allShips.keys();
 		for (var i in shipsArray){
 			var ship = this.allShips.get(shipsArray[i]);
+			this.shipContainer.addShipDOM(ship);
+		}*/
+		
+		var ships = this.allShips.values().sort(this.shipSortAsc);
+		for (var i in ships){
+			var ship = ships[i];
 			this.shipContainer.addShipDOM(ship);
 		}
 	},
@@ -216,7 +242,7 @@ function ShipManager(){
 	},	
 	
 	this.getAllIncomingShips = function(){
-		var viewValues = ["Ship_x0020_ID","Ship_x0020_Name","Destinations","Arrival_x0020_Time","Capacity","Current_x0020_Goods","Current_x0020_Capacity","Workflow_x0020_URL"];
+		var viewValues = ["Ship_x0020_ID","Ship_x0020_Name","Destinations","Arrival_x0020_Timing","Capacity","Current_x0020_Goods","Current_x0020_Capacity","Workflow_x0020_URL"];
 		var self = this;
 		SPWS.getList("Incoming Ships",viewValues,function(xData, Status){
 			self.allShips.clear();
@@ -225,12 +251,13 @@ function ShipManager(){
 				var shipID = xitem.attr('ows_Ship_x0020_ID');
 				var shipName = xitem.attr('ows_Title');
 				var destinations = xitem.attr('ows_Destinations');
-				var arrivalTime = xitem.attr('ows_Arrival_x0020_Time');
+				var arrivalTime = xitem.attr('ows_Arrival_x0020_Timing');
 				var capacity = xitem.attr('ows_Capacity');
 				var currentGoods = xitem.attr('ows_Current_x0020_Goods');
 				var currentCapacity = xitem.attr('ows_Current_x0020_Capacity');
 				var workflowURL = xitem.attr('ows_Workflow_x0020_URL');
-				self.allShips.put(shipName,new Ship(shipID,shipName,destinations,arrivalTime,capacity,currentGoods,currentCapacity,workflowURL));
+				var SPRowID = xitem.attr('ows_ID');
+				self.allShips.put(shipName,new Ship(shipID,shipName,destinations,arrivalTime,capacity,currentGoods,currentCapacity,workflowURL,SPRowID));
             });
 			return self.allShips;
 		});
@@ -333,8 +360,8 @@ function BerthManager(){
 		SPWS.getList("Shipment Schedule",viewValues,function(xData, Status){
 			$(xData.responseXML).SPFilterNode("z:row").each(function () {
 				var xitem = $(this);
-				var shipID = xitem.attr('ows_Ship_x0020_ID');
-				var shipName = xitem.attr('ows_Ship_x0020_Name');
+				var shipID = xitem.attr('ows_Title');
+				var shipName = xitem.attr('ows_Ship_x0020_ID');
 				var berthID = xitem.attr('ows_Berth_x0020_ID');
 				var time = xitem.attr('ows_Docking_x0020_Time');
 				//if (typeof time !== Number){
@@ -356,7 +383,6 @@ function BerthManager(){
 			var br = berthRecords[i];
 			if (br.berthID == berthID){
 				var time = br.time;
-				console.log(berthID+'.'+time.getHours());
 				timeHash.put(berthID+'.'+time.getHours(),br);
 			}
 		}
@@ -411,8 +437,6 @@ function ViewManager(){
 			//end loading overlay; started at dao login ln70
 			vManager.removeOverlay();
 		});
-		console.log('get all users finish');
-
 	},
 	
 	this.populateCensusContainerForAssignment = function(isSupervisor){
@@ -421,7 +445,6 @@ function ViewManager(){
 			censusContainer.generateSidebar();
 		}
 		this.loading();
-		console.log(vManager.currentUsername);
 		dao.getAllUsers(vManager.currentUsername,function(result){
 			var response = JSON.parse(result).users;
 			var users = [];
@@ -678,4 +701,36 @@ function ViewManager(){
 	    }
 	    return str;
 	}
+}
+
+Number.prototype.digitise = function (val) {
+    return (new Array( val + 1 ).join("0") + this ).slice( - val );
+}
+
+function ConvertDateToISO8601(dtDate)
+{
+//*************************************************
+//Converts Javascript dtDate to ISO 8601 standard for compatibility with SharePoint lists
+//Inputs: dtDate = Javascript date format (optional)
+//*************************************************
+  var d;
+  if (dtDate != null)  {
+     //Date value supplied
+     d = dtDate;
+  }
+  else  {
+     //No date supplied, Create new date object
+     d = new Date();
+  }
+  //Generate ISO 8601 date/time formatted string
+  var s = "";
+  s += d.getFullYear() + "-";
+  s += d.getDate() + "-";
+  s += d.getMonth() + 1;
+  s += " " + d.getHours().digitise(2) + ":";
+  s += d.getMinutes().digitise(2) + ":";
+  //time zone offset ("+8:00" - Singapore EST)
+  s += d.getSeconds().digitise(2);// + "+8:00";
+  //Return the ISO8601 date string
+  return s;
 }

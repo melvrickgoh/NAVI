@@ -66,7 +66,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="key.snk" />
-    <None Include="ProductScheduler\ProductScheduler.webpart" />
+    <None Include="ProductScheduler\ProductScheduler.webpart">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ProductScheduler\SharePointProjectItem.spdata">
       <SharePointProjectItemId>{fcb2ba6f-65d1-4e01-aaf8-cf584378e565}</SharePointProjectItemId>
     </None>

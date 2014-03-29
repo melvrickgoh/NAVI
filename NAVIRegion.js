@@ -168,10 +168,10 @@ L.NAVIRegion = L.Polygon.extend({
 												
 											var messageToSend = $('#notification-box textarea').val();
 											//messageToSend = self.encodeEscapeURI(messageToSend);
-											console.log(self.berthID + '.' + self.currentSlot);
+											//console.log(self.berthID + '.' + self.currentSlot);
 											self.timeslots.put(self.berthID+'.'+self.currentSlot,new BerthRecord(shipID,shipName,Math.round(self.berthID),self.currentSlot));
 			
-											self.updateSPShipAssigned();
+											self.updateSPShipAssigned(ship);
 												
 											self.removeNotificationUI();
 												
@@ -292,7 +292,7 @@ L.NAVIRegion = L.Polygon.extend({
 	recycleImage: function ($item) {
 		this.removeUser($item.attr('username'));
 		//alert($item.attr('username') + ' ' + this.users.size());
-		console.log(this.users.keys());
+		//console.log(this.users.keys());
 		censusContainer.recycleImage($item);
 	},
 	
@@ -389,14 +389,58 @@ L.NAVIRegion = L.Polygon.extend({
 		});
 	},
 	
-	updateSPShipAssigned: function(){
-		var timeAssigned = new Date();
+	updateSPShipAssigned: function(ship){
+		/*var timeAssigned = new Date();
 		timeAssigned.setHours(this.currentSlot);
 		timeAssigned.setMinutes(0);
-		timeAssigned.setSeconds(0);
+		timeAssigned.setSeconds(0);*/
+		
 		var incomingShipsUpdateHash = new Hashtable();
-		incomingShipsUpdateHash.put('Ship_x0020_Status','Assigned');
-		SPWS.updateList('Incoming Ships',[])
+		incomingShipsUpdateHash.put('Slot',this.currentSlot);
+		incomingShipsUpdateHash.put('Status','Assigned');
+		SPWS.updateSingleListItem(ship.SPRowID,'Update','Incoming Ships',incomingShipsUpdateHash,function(xData,status){
+			//console.log( 'incoming ship list update' + xData.responseText );
+		});
+		
+		var workflowID = this.getWorkflowID(ship.shipName);
+		//console.log(workflowID);
+		var taskUpdateHash = new Hashtable();
+		taskUpdateHash.put('PercentComplete',0.167);
+		taskUpdateHash.put('Status','Product Scheduling');
+		SPWS.updateSingleListItem(workflowID,'Update','Tasks',taskUpdateHash,function(xData,status){
+			//console.log( 'tasks list update' + xData.responseText );
+		});
+	},
+	
+	getWorkflowID: function(shipName){
+		var tasks = this.getWorkflowTasks();
+		for (var i in tasks){
+			var task = tasks[i];
+			if (shipName == task.shipName){
+				return task.id;
+			}
+		}
+		return undefined;
+	},
+	
+	getWorkflowTasks: function(){
+		var viewValues = ["Ship","Status"];
+		var workflowTasks = [];
+		SPWS.getList("Tasks",viewValues,function(xData, Status){
+			self.allShipments = [];
+			$(xData.responseXML).SPFilterNode("z:row").each(function () {
+				var xitem = $(this);
+				var shipName = xitem.attr('ows_Ship');
+				var status = xitem.attr('ows_Status');
+				var id = xitem.attr('ows_ID');
+				workflowTasks.push({
+					shipName: shipName,
+					status: status,
+					id: id
+				});
+            });
+		});
+		return workflowTasks;
 	}
 });
 

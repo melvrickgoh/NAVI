@@ -10,20 +10,24 @@ function SPServices(){
 		return string + "</ViewFields>";
 	},
 	
-	this.generateCAMLUpdateString = function(hashArray){
+	this.generateCAMLUpdateString = function(listCommand,hashArray){
 		var fieldsToUpdate = '<Batch OnError="Continue">';
-		for (var k = 1; k<hashArray.length; k++){
+		//console.log(hashArray.length);
+		var counter = 1;
+		for (var k in hashArray){
 			var fieldHash = hashArray[k];
-			fieldsToUpdate += '<Method ID="' + k + '" Cmd="Update">';
+			fieldsToUpdate += '<Method ID="' + counter + '" Cmd="'+listCommand+'">';
 			
 			var keys = fieldHash.keys();
-			for (var i = 1; i<=keys.length; i++){
+			//console.log(keys);
+			for (var i in keys){
 				var fieldName = keys[i];
 				var fieldValue = fieldHash.get(fieldName);
 				fieldsToUpdate += '<Field Name="' + fieldName + '">' + fieldValue + '</Field>';
 			}
 			
 			fieldsToUpdate += '</Method>';
+			counter++;
 		}
 		return fieldsToUpdate + "</Batch>";
 	},
@@ -56,8 +60,8 @@ function SPServices(){
             });
 	},
 	
-	this.updateList = function (listNameToUpdate,items,successCallback){
-		var CAMLUpdateFields = this.generateCAMLUpdateString(items)
+	this.updateList = function (listCommand,listNameToUpdate,items,successCallback){
+		var CAMLUpdateFields = this.generateCAMLUpdateString(listCommand,items);
 		$().SPServices({
 			  operation: "UpdateListItems",
 			  listName: listNameToUpdate,
@@ -67,7 +71,32 @@ function SPServices(){
 		});
 	},
 	
-	this.updateWorkflow = function(){
+	this.updateSingleListItem = function(id,action,listName,hash,successCallback){
+		 var valPairs = this.generateValuePairs(hash);
+		 
+		 $().SPServices({
+			  operation: "UpdateListItems",
+			  listName: listName,
+			  ID: id,
+			  async: false,
+			  batchCmd: action,
+			  valuepairs: valPairs,
+			  completefunc: successCallback
+		 });
+	},
+	
+	this.generateValuePairs = function(hash){
+		var arr = [];
+		var keys = hash.keys();
+		for (var i in keys){
+			var k = keys[i];
+			var v = hash.get(k);
+			arr.push([k,v]);
+		}
+		return arr;
+	},
+	
+	this.updateWorkflow = function(respItemURL){
 		 $().SPServices({
 			operation: "GetToDosForItem",
 			item: respItemURL,
