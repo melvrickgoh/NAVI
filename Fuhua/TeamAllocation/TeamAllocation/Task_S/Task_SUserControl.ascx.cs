@@ -36,11 +36,11 @@ namespace TeamAllocation.Task_S
             {
                 try
                 {
-                    if (WebShips == null)
-                        WebShips = getSubSiteURL("IncomingShips");
+                   if (WebShips == null)
+                        WebShips = getSubSiteURL("IncomingShips"); //get the site
 
-                    DropDownListS.Items.Add(new ListItem("All", "All"));
-                    SPList list = WebShips.Lists["Ships"];
+                    DropDownListS.Items.Add(new ListItem("All", "All")); //add items into dropdown list
+                    SPList list = WebShips.Lists["Shipment Schedule"]; // get list from site
 
 
                     foreach (SPListItem item in list.Items)
@@ -62,26 +62,34 @@ namespace TeamAllocation.Task_S
         protected void DropDownListS_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (WebShips == null)
-                WebShips = getSubSiteURL("IncomingShips");
-            SPList list = WebShips.Lists["Ships"];
+                WebShips = getSubSiteURL("IncomingShips"); //get the site
+            SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
             string selectedValue = DropDownListS.SelectedItem.Value;
+
             try
             {
                 m_shipList.Clear();
                 foreach (SPListItem item in list.Items)
                 {
-                    if (DropDownListS.SelectedIndex == 0 || string.Compare(Convert.ToString(item["S"]), selectedValue) == 0)
+
+                    if (DropDownListS.SelectedIndex == 0 ||
+                        string.Compare(Convert.ToString(item["S"]), selectedValue) == 0)
                     {
                         Ship ship = new Ship();
-                        ship.Berth = Convert.ToString(item["Berth"]);
-                        ship.Title = Convert.ToString(item["Title"]);
-                        ship.Atime = Convert.ToString(item["Arrival Time"]);
+                        ship.Berth = Convert.ToString(item["Berth ID"]);
+                        ship.Title = Convert.ToString(item["Ship Name"]);
+                        ship.Atime = Convert.ToString(item["Docking Time"]);
                         ship.Assigned = Convert.ToBoolean(item["Assigned"]);
                         ship.F = Convert.ToString(item["F"]);
                         ship.O = Convert.ToString(item["O"]);
                         ship.S = Convert.ToString(item["S"]);
+                        ship.F_Approved = Convert.ToBoolean(item["F_Approved"]);
+                        ship.O_Approved = Convert.ToBoolean(item["O_Approved"]);
+                        ship.S_Approved = Convert.ToBoolean(item["S_Approved"]);
+                        
                         m_shipList.Add(ship);
-                    }
+                    } 
+                  
                 }
 
                 GridViewS.DataSource = m_shipList;
@@ -99,7 +107,7 @@ namespace TeamAllocation.Task_S
 
             Ship ship = m_shipList[GridViewS.SelectedIndex];
 
-            LabelS2.Text = "Incoming ship: " + ship.Title + ". Arrival time: " + ship.Atime;
+            LabelS2.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
 
             if (ship.F != null && ship.F.Length != 0 && !S_approved.Contains(ship.F))
                 S_approved.Add(ship.F);
@@ -120,11 +128,11 @@ namespace TeamAllocation.Task_S
                 Ship ship = m_shipList[GridViewS.SelectedIndex];
 
                 if (RadioButtonS1.Checked)
-                    RadioButtonS2.Checked = false;
                     ship.S_Approved = true;
+
                 if (RadioButtonS2.Checked)
-                    RadioButtonS1.Checked = false;
                     ship.S_Approved = false;
+                
                 m_shipList[GridViewS.SelectedIndex] = ship;
 
                 GridViewS.DataSource = m_shipList;
@@ -132,11 +140,11 @@ namespace TeamAllocation.Task_S
 
                 if (WebShips == null)
                     WebShips = getSubSiteURL("IncomingShips");//get the site
-                SPList list = WebShips.Lists["Ships"];//get the list from the site
-
+                SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
+             
                 foreach (SPListItem item in list.Items)
                 {
-                    string title = Convert.ToString(item["Title"]);
+                    string title = Convert.ToString(item["Ship Name"]);
                     if (string.Compare(Convert.ToString(item["S"]), DropDownListS.SelectedItem.Value) == 0 &&
                         string.Compare(title, ship.Title) == 0
                         )
@@ -149,9 +157,6 @@ namespace TeamAllocation.Task_S
                 }
             }
         }
-
-
-
     }
     class Ship
     {
