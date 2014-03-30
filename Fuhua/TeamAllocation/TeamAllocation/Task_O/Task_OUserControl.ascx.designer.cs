@@ -13,66 +13,66 @@ namespace TeamAllocation.Task_O {
     public partial class Task_OUserControl {
         
         /// <summary>
-        /// DropDownList1 control.
+        /// DropDownList_operations_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownList1;
+        protected global::System.Web.UI.WebControls.DropDownList DropDownList_operations_name;
         
         /// <summary>
-        /// Label1 control.
+        /// Label_dropdown_errormsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
+        protected global::System.Web.UI.WebControls.Label Label_dropdown_errormsg;
         
         /// <summary>
-        /// GridView1 control.
+        /// GridView_operations_tasklist control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
+        protected global::System.Web.UI.WebControls.GridView GridView_operations_tasklist;
         
         /// <summary>
-        /// Label2 control.
+        /// Label_operations_selected_task control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label2;
+        protected global::System.Web.UI.WebControls.Label Label_operations_selected_task;
         
         /// <summary>
-        /// RadioButton1 control.
+        /// RadioButton_operations_approve control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButton1;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_operations_approve;
         
         /// <summary>
-        /// RadioButton2 control.
+        /// RadioButton_operations_reject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButton2;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_operations_reject;
         
         /// <summary>
-        /// GO control.
+        /// GO_operations_confirm_selection control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button GO;
+        protected global::System.Web.UI.WebControls.Button GO_operations_confirm_selection;
     }
 }

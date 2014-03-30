@@ -42,7 +42,7 @@ namespace TeamAllocation.HR
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            Label1.Text = "";
+            Label_dropdown_errormsg.Text = "";
 
             if (Finance == null)
                 Finance = getSubSiteURL("Finance"); //get the site
@@ -71,8 +71,8 @@ namespace TeamAllocation.HR
             {
                 try
                 {
-                    
-                    DropDownList1.Items.Add(new ListItem("All", "All")); //add items into dropdown list
+
+                    DropDownList_docking_time.Items.Add(new ListItem("All", "All")); //add items into dropdown list
                     //SPList list = WebShips.Lists["Shipment Schedule"]; //get list from site
                     SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
 
@@ -81,15 +81,15 @@ namespace TeamAllocation.HR
                     {
                         string time = Convert.ToString(item["Docking Time"]); //get column from list
 
-                        if (!DropDownList1.Items.Contains(new ListItem(time)))
+                        if (!DropDownList_docking_time.Items.Contains(new ListItem(time)))
                         {
-                            DropDownList1.Items.Add(new ListItem(time, time)); //add items into dropdown from list
+                            DropDownList_docking_time.Items.Add(new ListItem(time, time)); //add items into dropdown from list
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Label1.Text = "Error: " + ex.Message;
+                    Label_dropdown_errormsg.Text = "Error: " + ex.Message;
                 }
             }
         }
@@ -101,14 +101,14 @@ namespace TeamAllocation.HR
 
            
             SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
-            string selectedValue = DropDownList1.SelectedItem.Value;
+            string selectedValue = DropDownList_docking_time.SelectedItem.Value;
             
             try
             {
                 m_shipList.Clear();
                 foreach (SPListItem item in list.Items)
                 {
-                    if (DropDownList1.SelectedIndex == 0 ||
+                    if (DropDownList_docking_time.SelectedIndex == 0 ||
                         string.Compare(Convert.ToString(item["Docking Time"]), selectedValue) == 0)
                     {
                         Ship ship = new Ship();
@@ -129,13 +129,13 @@ namespace TeamAllocation.HR
                     }
                 }
 
-                GridView1.DataSource = m_shipList;
-                GridView1.DataBind();
+                GridView_team_allocation.DataSource = m_shipList;
+                GridView_team_allocation.DataBind();
 
             }
             catch (Exception ex)
             {
-                Label1.Text = "Error: " + ex.Message;
+                Label_dropdown_errormsg.Text = "Error: " + ex.Message;
             }
         }
 
@@ -158,13 +158,13 @@ namespace TeamAllocation.HR
                 if (ship.S != null && ship.S.Length != 0 && !SPeopleAssigned.Contains(ship.S))
                     SPeopleAssigned.Add(ship.S);
             }
-            RadioButtonList1.Items.Clear();
-            RadioButtonList2.Items.Clear();
-            RadioButtonList3.Items.Clear();
+            RadioButtonList_finance_name.Items.Clear();
+            RadioButtonList_operations_name.Items.Clear();
+            RadioButtonList_safety_name.Items.Clear();
 
-            if (GridView1.SelectedIndex >= 0) //if selected ship has been assigned, do nothing
+            if (GridView_team_allocation.SelectedIndex >= 0) //if selected ship has been assigned, do nothing
             {
-                Ship ship = m_shipList[GridView1.SelectedIndex];
+                Ship ship = m_shipList[GridView_team_allocation.SelectedIndex];
                 if (ship.Assigned)
                     return;
             }
@@ -172,36 +172,36 @@ namespace TeamAllocation.HR
             for (int i = 0; i < FPeople.Length; i++) //display unassigned people at radio button for selection
             {
                 if (!FPeopleAssigned.Contains(FPeople[i]))
-                    RadioButtonList1.Items.Add(FPeople[i]);
+                    RadioButtonList_finance_name.Items.Add(FPeople[i]);
             }
             for (int i = 0; i < OPeople.Length; i++) //display unassigned people at radio button for selection
             {
                 if (!OPeopleAssigned.Contains(OPeople[i]))
-                    RadioButtonList2.Items.Add(OPeople[i]);
+                    RadioButtonList_operations_name.Items.Add(OPeople[i]);
             }
             for (int i = 0; i < SPeople.Length; i++) //display unassigned people at radio button for selection
             {
                 if (!SPeopleAssigned.Contains(SPeople[i]))
-                    RadioButtonList3.Items.Add(SPeople[i]);
+                    RadioButtonList_safety_name.Items.Add(SPeople[i]);
             }
         }
 
         protected void AssignTeam_Click(object sender, EventArgs e)
         {
-            if (GridView1.SelectedIndex != -1)
+            if (GridView_team_allocation.SelectedIndex != -1)
             {
-                Ship ship = m_shipList[GridView1.SelectedIndex];
+                Ship ship = m_shipList[GridView_team_allocation.SelectedIndex];
                 ship.Assigned = true;
-                ship.F = RadioButtonList1.SelectedValue;
-                ship.O = RadioButtonList2.SelectedValue;
-                ship.S = RadioButtonList3.SelectedValue;
-                m_shipList[GridView1.SelectedIndex] = ship;
+                ship.F = RadioButtonList_finance_name.SelectedValue;
+                ship.O = RadioButtonList_operations_name.SelectedValue;
+                ship.S = RadioButtonList_safety_name.SelectedValue;
+                m_shipList[GridView_team_allocation.SelectedIndex] = ship;
 
                 //get the data on the selected radio button for FOS
                 //update the data to the FOS columns onto the 'incoming ships' list
-                
-                GridView1.DataSource = m_shipList;
-                GridView1.DataBind();
+
+                GridView_team_allocation.DataSource = m_shipList;
+                GridView_team_allocation.DataBind();
                 //if (WebShips == null)
                   //  WebShips = getSubSiteURL("IncomingShips");//get the site
                 SPList list = SPContext.Current.Web.Lists["Shipment Schedule"]; //at parent site: transshipment
@@ -209,7 +209,7 @@ namespace TeamAllocation.HR
                 foreach (SPListItem item in list.Items)
                 {
                     string title = Convert.ToString(item["Ship Name"]);
-                    if (string.Compare(Convert.ToString(item["Docking Time"]), DropDownList1.SelectedItem.Value) == 0 &&
+                    if (string.Compare(Convert.ToString(item["Docking Time"]), DropDownList_docking_time.SelectedItem.Value) == 0 &&
                         string.Compare(title, ship.Title) == 0
                         )
                     {

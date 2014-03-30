@@ -13,66 +13,66 @@ namespace TeamAllocation.Task_S {
     public partial class Task_SUserControl {
         
         /// <summary>
-        /// DropDownListS control.
+        /// DropDownList_safety_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownListS;
+        protected global::System.Web.UI.WebControls.DropDownList DropDownList_safety_name;
         
         /// <summary>
-        /// LabelS1 control.
+        /// Label_dropdown_errormsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LabelS1;
+        protected global::System.Web.UI.WebControls.Label Label_dropdown_errormsg;
         
         /// <summary>
-        /// GridViewS control.
+        /// GridView_safety_tasklist control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridViewS;
+        protected global::System.Web.UI.WebControls.GridView GridView_safety_tasklist;
         
         /// <summary>
-        /// LabelS2 control.
+        /// Label_safety_selected_task control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LabelS2;
+        protected global::System.Web.UI.WebControls.Label Label_safety_selected_task;
         
         /// <summary>
-        /// RadioButtonS1 control.
+        /// RadioButton_safety_approve control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButtonS1;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_safety_approve;
         
         /// <summary>
-        /// RadioButtonS2 control.
+        /// RadioButton_safety_reject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButtonS2;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_safety_reject;
         
         /// <summary>
-        /// GOS control.
+        /// GO_safety_confirm_selection control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button GOS;
+        protected global::System.Web.UI.WebControls.Button GO_safety_confirm_selection;
     }
 }

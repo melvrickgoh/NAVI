@@ -13,66 +13,66 @@ namespace TeamAllocation.HR {
     public partial class HRUserControl {
         
         /// <summary>
-        /// DropDownList1 control.
+        /// DropDownList_docking_time control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownList1;
+        protected global::System.Web.UI.WebControls.DropDownList DropDownList_docking_time;
         
         /// <summary>
-        /// Label1 control.
+        /// Label_dropdown_errormsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label Label1;
+        protected global::System.Web.UI.WebControls.Label Label_dropdown_errormsg;
         
         /// <summary>
-        /// GridView1 control.
+        /// GridView_team_allocation control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
+        protected global::System.Web.UI.WebControls.GridView GridView_team_allocation;
         
         /// <summary>
-        /// RadioButtonList1 control.
+        /// RadioButtonList_finance_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList1;
+        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList_finance_name;
         
         /// <summary>
-        /// RadioButtonList2 control.
+        /// RadioButtonList_operations_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList2;
+        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList_operations_name;
         
         /// <summary>
-        /// RadioButtonList3 control.
+        /// RadioButtonList_safety_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList3;
+        protected global::System.Web.UI.WebControls.RadioButtonList RadioButtonList_safety_name;
         
         /// <summary>
-        /// AssignTeam control.
+        /// AssignTeam_confirmation control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button AssignTeam;
+        protected global::System.Web.UI.WebControls.Button AssignTeam_confirmation;
     }
 }

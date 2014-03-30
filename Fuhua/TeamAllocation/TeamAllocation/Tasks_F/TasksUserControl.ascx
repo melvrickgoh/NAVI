@@ -26,17 +26,17 @@
         <td class="style2">
             Who are you?</td>
         <td>
-            <asp:DropDownList ID="DropDownListF" runat="server" AutoPostBack="True" 
+            <asp:DropDownList ID="DropDownList_finance_name" runat="server" AutoPostBack="True" 
                 onselectedindexchanged="DropDownListF_SelectedIndexChanged">
             </asp:DropDownList>
-            <asp:Label ID="LabelF1" runat="server" ForeColor="Red" Text="Label"></asp:Label>
+            <asp:Label ID="Label_dropdown_errormsg" runat="server" ForeColor="Red" Text="Label"></asp:Label>
         </td>
     </tr>
     <tr>
         <td class="style2">
             &nbsp;</td>
         <td>
-            <asp:GridView ID="GridViewF" runat="server" EnableModelValidation="True" 
+            <asp:GridView ID="GridView_finance_tasklist" runat="server" EnableModelValidation="True" 
                 onselectedindexchanged="GridViewF_SelectedIndexChanged" Width="771px" 
                 AutoGenerateSelectButton="True">
                 
@@ -47,20 +47,20 @@
 <p>
     &nbsp;</p>
 <p>
-    <asp:Label ID="LabelF2" runat="server"></asp:Label>
+    <asp:Label ID="Label_finance_selected_task" runat="server"></asp:Label>
 </p>
 <p style="width: 810px">
     Do you want to approve it?</p>
 <table class="style1">
     <tr>
         <td class="style3">
-            <asp:RadioButton ID="RadioButtonF1" runat="server" Text="YES" 
+            <asp:RadioButton ID="RadioButton_finance_approve" runat="server" Text="YES" 
             GroupName="groupF"/>
-            <asp:RadioButton ID="RadioButtonF2" runat="server" Text="NO" 
+            <asp:RadioButton ID="RadioButton_finance_reject" runat="server" Text="NO" 
             GroupName="groupF"/>
         </td>
         <td>
-            <asp:Button ID="GOF" runat="server" onclick="ButtonS_Click" Text="GO" />
+            <asp:Button ID="GO_finance_confirm_selection" runat="server" onclick="ButtonS_Click" Text="GO" />
         </td>
     </tr>
 </table>

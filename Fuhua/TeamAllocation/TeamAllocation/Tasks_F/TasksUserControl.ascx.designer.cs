@@ -13,66 +13,66 @@ namespace TeamAllocation.Tasks {
     public partial class TasksUserControl {
         
         /// <summary>
-        /// DropDownListF control.
+        /// DropDownList_finance_name control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList DropDownListF;
+        protected global::System.Web.UI.WebControls.DropDownList DropDownList_finance_name;
         
         /// <summary>
-        /// LabelF1 control.
+        /// Label_dropdown_errormsg control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LabelF1;
+        protected global::System.Web.UI.WebControls.Label Label_dropdown_errormsg;
         
         /// <summary>
-        /// GridViewF control.
+        /// GridView_finance_tasklist control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridViewF;
+        protected global::System.Web.UI.WebControls.GridView GridView_finance_tasklist;
         
         /// <summary>
-        /// LabelF2 control.
+        /// Label_finance_selected_task control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LabelF2;
+        protected global::System.Web.UI.WebControls.Label Label_finance_selected_task;
         
         /// <summary>
-        /// RadioButtonF1 control.
+        /// RadioButton_finance_approve control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButtonF1;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_finance_approve;
         
         /// <summary>
-        /// RadioButtonF2 control.
+        /// RadioButton_finance_reject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton RadioButtonF2;
+        protected global::System.Web.UI.WebControls.RadioButton RadioButton_finance_reject;
         
         /// <summary>
-        /// GOF control.
+        /// GO_finance_confirm_selection control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button GOF;
+        protected global::System.Web.UI.WebControls.Button GO_finance_confirm_selection;
     }
 }

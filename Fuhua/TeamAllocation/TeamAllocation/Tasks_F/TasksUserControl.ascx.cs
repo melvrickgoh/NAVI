@@ -31,7 +31,7 @@ namespace TeamAllocation.Tasks
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            LabelF1.Text = "";
+            Label_dropdown_errormsg.Text = "";
 
             if (!Page.IsPostBack)
             {
@@ -40,8 +40,8 @@ namespace TeamAllocation.Tasks
                     if (WebShips == null)
                         WebShips = SPContext.Current.Site.RootWeb;
                     //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
-            
-                    DropDownListF.Items.Add(new ListItem("All", "All"));
+
+                    DropDownList_finance_name.Items.Add(new ListItem("All", "All"));
                     SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
              
 
@@ -49,15 +49,15 @@ namespace TeamAllocation.Tasks
                     {
                         string F = Convert.ToString(item["F"]);
 
-                        if (!DropDownListF.Items.Contains(new ListItem(F)))
+                        if (!DropDownList_finance_name.Items.Contains(new ListItem(F)))
                         {
-                            DropDownListF.Items.Add(new ListItem(F, F));
+                            DropDownList_finance_name.Items.Add(new ListItem(F, F));
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LabelF1.Text = "Error: " + ex.Message;
+                    Label_dropdown_errormsg.Text = "Error: " + ex.Message;
                 }
             }
         }
@@ -68,14 +68,14 @@ namespace TeamAllocation.Tasks
             //  WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
             
             SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
-            
-            string selectedValue = DropDownListF.SelectedItem.Value;
+
+            string selectedValue = DropDownList_finance_name.SelectedItem.Value;
             try
             {
                 m_shipList.Clear();
                 foreach (SPListItem item in list.Items)
                 {
-                    if (DropDownListF.SelectedIndex == 0 || string.Compare(Convert.ToString(item["F"]), selectedValue) == 0)
+                    if (DropDownList_finance_name.SelectedIndex == 0 || string.Compare(Convert.ToString(item["F"]), selectedValue) == 0)
                     {
                         Ship ship = new Ship();
                         ship.Berth = Convert.ToString(item["Berth ID"]);
@@ -95,25 +95,25 @@ namespace TeamAllocation.Tasks
                     }
                 }
 
-                GridViewF.DataSource = m_shipList;
-                GridViewF.DataBind();
+                GridView_finance_tasklist.DataSource = m_shipList;
+                GridView_finance_tasklist.DataBind();
 
             }
             catch (Exception ex)
             {
-                LabelF1.Text = "Error: " + ex.Message;
+                Label_dropdown_errormsg.Text = "Error: " + ex.Message;
             }
         }
         protected void GridViewF_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LabelF2.Text = "";
+            Label_finance_selected_task.Text = "";
 
-            Ship ship = m_shipList[GridViewF.SelectedIndex];
+            Ship ship = m_shipList[GridView_finance_tasklist.SelectedIndex];
 
-            LabelF2.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
+            Label_finance_selected_task.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
 
-          
-            if (GridViewF.SelectedIndex >= 0)
+
+            if (GridView_finance_tasklist.SelectedIndex >= 0)
             {
                 if (ship.F_Approved.CompareTo("Yes") == 0)
                     return;
@@ -124,20 +124,20 @@ namespace TeamAllocation.Tasks
         {
 
 
-            if (GridViewF.SelectedIndex != -1)
+            if (GridView_finance_tasklist.SelectedIndex != -1)
             {
-                Ship ship = m_shipList[GridViewF.SelectedIndex];
+                Ship ship = m_shipList[GridView_finance_tasklist.SelectedIndex];
 
-                if (RadioButtonF1.Checked)
+                if (RadioButton_finance_approve.Checked)
                 ship.F_Approved = "Yes";
 
-                if (RadioButtonF2.Checked)
+                if (RadioButton_finance_reject.Checked)
                 ship.F_Approved = "No";
-                
-                m_shipList[GridViewF.SelectedIndex] = ship;
 
-                GridViewF.DataSource = m_shipList;
-                GridViewF.DataBind();
+                m_shipList[GridView_finance_tasklist.SelectedIndex] = ship;
+
+                GridView_finance_tasklist.DataSource = m_shipList;
+                GridView_finance_tasklist.DataBind();
 
                 if (WebShips == null)
                     WebShips = SPContext.Current.Site.RootWeb;
@@ -148,7 +148,7 @@ namespace TeamAllocation.Tasks
                 foreach (SPListItem item in list.Items)
                 {
                     string title = Convert.ToString(item["Ship Name"]);
-                    if (string.Compare(Convert.ToString(item["F"]), DropDownListF.SelectedItem.Value) == 0 &&
+                    if (string.Compare(Convert.ToString(item["F"]), DropDownList_finance_name.SelectedItem.Value) == 0 &&
                         string.Compare(title, ship.Title) == 0
                         )
                     {

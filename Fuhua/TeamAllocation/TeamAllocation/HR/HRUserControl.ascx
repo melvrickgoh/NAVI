@@ -33,12 +33,12 @@
             Arrival Time of Incoming Ships:
             <br />
             <br />
-&nbsp;<asp:DropDownList ID="DropDownList1" runat="server" AutoPostBack="True" 
+&nbsp;<asp:DropDownList ID="DropDownList_docking_time" runat="server" AutoPostBack="True" 
                 onselectedindexchanged="DropDownList1_SelectedIndexChanged">
             </asp:DropDownList>
             <br />
             <br />
-            <asp:Label ID="Label1" runat="server" ForeColor="Red" Text="Label"></asp:Label>
+            <asp:Label ID="Label_dropdown_errormsg" runat="server" ForeColor="Red" Text="Label"></asp:Label>
             <br />
         </td>
     </tr>
@@ -46,7 +46,7 @@
         <td class="style2">
             &nbsp;</td>
         <td>
-            <asp:GridView ID="GridView1" runat="server" EnableModelValidation="True" 
+            <asp:GridView ID="GridView_team_allocation" runat="server" EnableModelValidation="True" 
                 onselectedindexchanged="GridView1_SelectedIndexChanged" Width="771px" 
                 AutoGenerateSelectButton="True">
                 
@@ -64,16 +64,16 @@
     <tr>
         <td class="style6">
             <br />
-            F:<asp:RadioButtonList ID="RadioButtonList1" runat="server">
+            F:<asp:RadioButtonList ID="RadioButtonList_finance_name" runat="server">
             </asp:RadioButtonList>
             <br />
             </td>
         <td class="style5">
-            O:<asp:RadioButtonList ID="RadioButtonList2" runat="server">
+            O:<asp:RadioButtonList ID="RadioButtonList_operations_name" runat="server">
             </asp:RadioButtonList>
             </td>
         <td class="style5">
-            S:<asp:RadioButtonList ID="RadioButtonList3" runat="server">
+            S:<asp:RadioButtonList ID="RadioButtonList_safety_name" runat="server">
             </asp:RadioButtonList>
             </td>
         <td class="style2">
@@ -83,7 +83,7 @@
 
 
 <p>
-            <asp:Button ID="AssignTeam" runat="server" Text="AssignTeam" 
+            <asp:Button ID="AssignTeam_confirmation" runat="server" Text="AssignTeam" 
                 onclick="AssignTeam_Click" />
         </p>
 

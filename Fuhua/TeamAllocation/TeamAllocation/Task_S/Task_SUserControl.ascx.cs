@@ -30,7 +30,7 @@ namespace TeamAllocation.Task_S
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            LabelS1.Text = "";
+            Label_dropdown_errormsg.Text = "";
 
             if (!Page.IsPostBack)
             {
@@ -40,7 +40,7 @@ namespace TeamAllocation.Task_S
                        WebShips = SPContext.Current.Site.RootWeb;
                      //   WebShips = getSubSiteURL("IncomingShips"); //CHANGE THIS: get the parent site
 
-                    DropDownListS.Items.Add(new ListItem("All", "All")); //add items into dropdown list
+                   DropDownList_safety_name.Items.Add(new ListItem("All", "All")); //add items into dropdown list
                     SPList list = WebShips.Lists["Shipment Schedule"]; // get list from site
                     
 
@@ -48,15 +48,15 @@ namespace TeamAllocation.Task_S
                     {
                         string S = Convert.ToString(item["S"]);
 
-                        if (!DropDownListS.Items.Contains(new ListItem(S)))
+                        if (!DropDownList_safety_name.Items.Contains(new ListItem(S)))
                         {
-                            DropDownListS.Items.Add(new ListItem(S, S));
+                            DropDownList_safety_name.Items.Add(new ListItem(S, S));
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LabelS1.Text = "Error: " + ex.Message;
+                    Label_dropdown_errormsg.Text = "Error: " + ex.Message;
                 }
             }
         }
@@ -67,7 +67,7 @@ namespace TeamAllocation.Task_S
                 WebShips = SPContext.Current.Site.RootWeb;
             
             SPList list = WebShips.Lists["Shipment Schedule"]; //get the list from the site
-            string selectedValue = DropDownListS.SelectedItem.Value;
+            string selectedValue = DropDownList_safety_name.SelectedItem.Value;
 
             try
             {
@@ -75,7 +75,7 @@ namespace TeamAllocation.Task_S
                 foreach (SPListItem item in list.Items)
                 {
 
-                    if (DropDownListS.SelectedIndex == 0 ||
+                    if (DropDownList_safety_name.SelectedIndex == 0 ||
                         string.Compare(Convert.ToString(item["S"]), selectedValue) == 0)
                     {
                         Ship ship = new Ship();
@@ -97,27 +97,27 @@ namespace TeamAllocation.Task_S
                   
                 }
 
-                GridViewS.DataSource = m_shipList;
-                GridViewS.DataBind();
+                GridView_safety_tasklist.DataSource = m_shipList;
+                GridView_safety_tasklist.DataBind();
 
             }
             catch (Exception ex)
             {
-                LabelS1.Text = "Error: " + ex.Message;
+                Label_dropdown_errormsg.Text = "Error: " + ex.Message;
             }
         }
         protected void GridViewS_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LabelS2.Text = "";
+            Label_safety_selected_task.Text = "";
 
-            Ship ship = m_shipList[GridViewS.SelectedIndex];
+            Ship ship = m_shipList[GridView_safety_tasklist.SelectedIndex];
 
-            LabelS2.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
+            Label_safety_selected_task.Text = "Incoming ship: " + ship.Title + ". Docking time: " + ship.Atime;
 
             if (ship.F != null && ship.F.Length != 0 && !S_approved.Contains(ship.F))
                 S_approved.Add(ship.F);
 
-            if (GridViewS.SelectedIndex >= 0)
+            if (GridView_safety_tasklist.SelectedIndex >= 0)
             {
                 if (ship.S_Approved.CompareTo("Yes") == 0)
                     return;
@@ -128,20 +128,20 @@ namespace TeamAllocation.Task_S
         {
             //THE RADIO BUTTON: SHOULD NOT BE ABLE TOMM CLICK ON BOTH
 
-            if (GridViewS.SelectedIndex != -1)
+            if (GridView_safety_tasklist.SelectedIndex != -1)
             {
-                Ship ship = m_shipList[GridViewS.SelectedIndex];
+                Ship ship = m_shipList[GridView_safety_tasklist.SelectedIndex];
 
-                if (RadioButtonS1.Checked)
+                if (RadioButton_safety_approve.Checked)
                     ship.S_Approved = "Yes"; //CHANGE THIS TO STRING: APPROVED
 
-                if (RadioButtonS2.Checked)
+                if (RadioButton_safety_reject.Checked)
                     ship.S_Approved = "NO"; //CHANGE THIS TO STRING: REJECTED
-                
-                m_shipList[GridViewS.SelectedIndex] = ship;
 
-                GridViewS.DataSource = m_shipList;
-                GridViewS.DataBind();
+                m_shipList[GridView_safety_tasklist.SelectedIndex] = ship;
+
+                GridView_safety_tasklist.DataSource = m_shipList;
+                GridView_safety_tasklist.DataBind();
 
                 if (WebShips == null)
                     //WebShips = getSubSiteURL("IncomingShips"); //get the site //CHANGE THIS: get the parent site
@@ -151,7 +151,7 @@ namespace TeamAllocation.Task_S
                 foreach (SPListItem item in list.Items)
                 {
                     string title = Convert.ToString(item["Ship Name"]);
-                    if (string.Compare(Convert.ToString(item["S"]), DropDownListS.SelectedItem.Value) == 0 &&
+                    if (string.Compare(Convert.ToString(item["S"]), DropDownList_safety_name.SelectedItem.Value) == 0 &&
                         string.Compare(title, ship.Title) == 0
                         )
                     {
